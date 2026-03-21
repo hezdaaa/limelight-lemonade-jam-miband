@@ -1,0 +1,1344 @@
+<template>
+    <div class="page">
+        <img class="bcg" src="/common/bcgi/空_夕_夏.jpg"></img>
+        <img class="bt" src="/common/bt.png"></img>
+        <img class="hd" src="/common/hd.png"></img>
+        
+        <!-- 主菜单 -->
+        <div class="page2" if="{{jump === true}}">
+            <div class="header">
+                <text class="title">鉴赏模式</text>
+            </div>
+            <div class="content" onclick="showcg">
+                <text class="mid">CG鉴赏</text>
+            </div>
+            <div class="content" onclick="showlh">
+                <text class="mid">立绘鉴赏</text>
+            </div>
+            <div class="content" onclick="showscene">
+                <text class="mid">场景鉴赏</text>
+            </div>
+        </div>
+        
+        <!-- CG鉴赏页面 -->
+        <div class="page2" if="{{cgshow === true}}" >
+            <image class="cgimg" src="{{currentCG}}" onclick="hidcgui"></image>
+            <img class="bt" src="/common/bt.png" if="{{cguishow}}"></img>
+            <img class="hd" src="/common/hd.png" if="{{cguishow}}"></img>
+            <div class="header">
+                <text class="title" if="{{cguishow}}">CG鉴赏</text>
+            </div>
+            
+            <div class="info-container" >
+                <text class="info-text" if="{{cguishow}}">{{cgIndex + 1}}/{{cgList.length}}</text>
+            </div>
+            
+            <img class="last-btn" src="/common/back.png"  if="{{cguishow}}" onclick="lastcg"></img>
+            <img class="enter-btn" src="/common/go.png"  if="{{cguishow}}" onclick="entercg"></img>
+        </div>
+        
+        <!-- 立绘鉴赏页面 -->
+        <div class="page2" if="{{lhshow === true}}">
+            <image class="backgroundimg" src="{{currentBg}}" onclick="hidlhch"></image>
+            <image class="character" src="{{currentChar}}" onclick="hidlhui" if="{{lhchshow}}"></image>
+            <img class="bt" src="/common/bt.png" if="{{lhuishow}}"></img>
+            <img class="hd" src="/common/hd.png" if="{{lhuishow}}"></img>
+            <div class="header">
+                <text class="title" if="{{lhuishow}}">立绘鉴赏</text>
+            </div>
+            <div class="info-container" if="{{lhuishow}}">
+                <text class="info-text" if="{{lhuishow}}">背景: {{bgIndex + 1}}/{{backgroundList.length}}</text>
+                <text class="info-text" if="{{lhuishow}}">角色: {{charIndex + 1}}/{{characterList.length}}</text>
+            </div>
+            <img class="last-btn1" src="/common/back.png" onclick="lastcgb" if="{{lhuishow}}"></img>
+            <img class="enter-btn1" src="/common/go.png" onclick="entercgb" if="{{lhuishow}}"></img>
+            <img class="last-btn" src="/common/back.png" onclick="lastlh" if="{{lhuishow}}"></img>
+            <img class="enter-btn" src="/common/go.png" onclick="enterlh" if="{{lhuishow}}"></img>
+        </div>
+        
+        <!-- 场景鉴赏页面 -->
+        <div class="page2" if="{{sceneshow === true}}">
+            <img class="bt" src="/common/bt.png"></img>
+            <img class="hd" src="/common/hd.png"></img>
+            <div class="header">
+                <text class="title">场景鉴赏</text>
+            </div>
+            <img class="last-btn" src="/common/back.png" onclick="lastsc"></img>
+            <img class="enter-btn" src="/common/go.png" onclick="entersc"></img>
+            <div class="startBtn">
+                <text class="startText" onclick="loadStart()">开始</text>
+            </div>
+        </div>
+        
+        <img class="back-btn" src="/common/back.png" onclick="back" if="{{jump || lhuishow && cguishow}}"></img>
+    </div>
+</template>
+
+<script>
+import router from '@system.router'
+
+export default {
+    data: {
+        // 页面显示控制
+        jump: true,
+        cgshow: false,
+        lhshow: false,
+        sceneshow: false,
+        
+        // CG鉴赏相关 - 硬编码列表
+        cgList: [
+    "/common/evig/clear.jpg",
+    "/common/evig/ev001a.jpg",
+    "/common/evig/ev001b.jpg",
+    "/common/evig/ev011.jpg",
+    "/common/evig/ev021a.jpg",
+    "/common/evig/ev021b.jpg",
+    "/common/evig/ev021c.jpg",
+    "/common/evig/ev021d.jpg",
+    "/common/evig/ev031a.jpg",
+    "/common/evig/ev031b.jpg",
+    "/common/evig/ev041.jpg",
+    "/common/evig/ev051a.jpg",
+    "/common/evig/ev051b.jpg",
+    "/common/evig/ev101a.jpg",
+    "/common/evig/ev101b.jpg",
+    "/common/evig/ev102.jpg",
+    "/common/evig/ev103.jpg",
+    "/common/evig/ev104.jpg",
+    "/common/evig/ev105a.jpg",
+    "/common/evig/ev105b.jpg",
+    "/common/evig/ev106a.jpg",
+    "/common/evig/ev106b.jpg",
+    "/common/evig/ev106c.jpg",
+    "/common/evig/ev106d.jpg",
+    "/common/evig/ev107a.jpg",
+    "/common/evig/ev107b.jpg",
+    "/common/evig/ev108a.jpg",
+    "/common/evig/ev108b.jpg",
+    "/common/evig/ev108c.jpg",
+    "/common/evig/ev109.jpg",
+    "/common/evig/ev110.jpg",
+    "/common/evig/ev111.jpg",
+    "/common/evig/ev201a.jpg",
+    "/common/evig/ev201b.jpg",
+    "/common/evig/ev202.jpg",
+    "/common/evig/ev203a.jpg",
+    "/common/evig/ev203b.jpg",
+    "/common/evig/ev204a.jpg",
+    "/common/evig/ev204b.jpg",
+    "/common/evig/ev205.jpg",
+    "/common/evig/ev206a.jpg",
+    "/common/evig/ev206b.jpg",
+    "/common/evig/ev207.jpg",
+    "/common/evig/ev208.jpg",
+    "/common/evig/ev210.jpg",
+    "/common/evig/ev251a.jpg",
+    "/common/evig/ev251b.jpg",
+    "/common/evig/ev301a.jpg",
+    "/common/evig/ev301b.jpg",
+    "/common/evig/ev302.jpg",
+    "/common/evig/ev303a.jpg",
+    "/common/evig/ev303b.jpg",
+    "/common/evig/ev304.jpg",
+    "/common/evig/ev305.jpg",
+    "/common/evig/ev306.jpg",
+    "/common/evig/ev307.jpg",
+    "/common/evig/ev308a.jpg",
+    "/common/evig/ev308b.jpg",
+    "/common/evig/ev308c.jpg",
+    "/common/evig/ev309.jpg",
+    "/common/evig/ev309b.jpg",
+    "/common/evig/ev310a.jpg",
+    "/common/evig/ev310b.jpg",
+    "/common/evig/ev311.jpg",
+    "/common/evig/ev312.jpg",
+    "/common/evig/ev312a.jpg",
+    "/common/evig/ev312b.jpg",
+    "/common/evig/ev401a.jpg",
+    "/common/evig/ev401b.jpg",
+    "/common/evig/ev401c.jpg",
+    "/common/evig/ev401d.jpg",
+    "/common/evig/ev402a.jpg",
+    "/common/evig/ev402b.jpg",
+    "/common/evig/ev403a.jpg",
+    "/common/evig/ev403b.jpg",
+    "/common/evig/ev404a.jpg",
+    "/common/evig/ev404b.jpg",
+    "/common/evig/ev405.jpg",
+    "/common/evig/ev405b.jpg",
+    "/common/evig/ev406.jpg",
+    "/common/evig/ev408.jpg",
+    "/common/evig/ev408b.jpg",
+    "/common/evig/ev408c.jpg",
+    "/common/evig/ev409a.jpg",
+    "/common/evig/ev409ac.jpg",
+    "/common/evig/ev409b.jpg",
+    "/common/evig/ev409bc.jpg",
+    "/common/evig/ev410.jpg",
+    "/common/evig/ev411.jpg",
+    "/common/evig/ev411b.jpg",
+    "/common/evig/ev501.jpg",
+    "/common/evig/ev508.jpg",
+    "/common/evig/ev601.jpg",
+    "/common/evig/ev601a.jpg",
+    "/common/evig/ev610.jpg",
+    "/common/evig/sd001_1.png",
+    "/common/evig/sd001_2.png",
+    "/common/evig/sd002_1.png",
+    "/common/evig/sd002_2.png",
+    "/common/evig/sd003_1.png",
+    "/common/evig/sd003_2.png",
+    "/common/evig/sd003_3.png",
+    "/common/evig/sd003_4.png",
+    "/common/evig/sd003_5.png",
+    "/common/evig/sd004_1.png",
+    "/common/evig/sd004_2.png",
+    "/common/evig/sd004_3.png",
+    "/common/evig/sd005_1.png",
+    "/common/evig/sd005_2.png",
+    "/common/evig/sd006_1.png",
+    "/common/evig/sd006_2.png",
+    "/common/evig/sd006_3.png",
+    "/common/evig/sd007a.png",
+    "/common/evig/sd007ab.png",
+    "/common/evig/sd007abc.png",
+    "/common/evig/sd008.png",
+    "/common/evig/sd009_1.png",
+    "/common/evig/sd009_3.png",
+    "/common/evig/sd009a.png",
+    "/common/evig/sd009b.png",
+    "/common/evig/sd009c.png",
+    "/common/evig/sd009d.png",
+    "/common/evig/sd010_a.png",
+    "/common/evig/sd010_b.png",
+    "/common/evig/sd011a.png",
+    "/common/evig/sd011c.png",
+    "/common/evig/sd012a.png",
+    "/common/evig/sd012c.png",
+    "/common/evig/sd013a.png",
+    "/common/evig/sd013b.png",
+    "/common/evig/sd014a.png",
+    "/common/evig/sd014b.png",
+    "/common/evig/sd015.png",
+    "/common/evig/sd016.png",
+    "/common/evig/sd016b.png",
+    "/common/evig/sd101.png",
+    "/common/evig/sd102.png",
+    "/common/evig/sd103a.png",
+    "/common/evig/sd103b.png",
+    "/common/evig/sd104a.png",
+    "/common/evig/sd104b.png",
+    "/common/evig/sd104c.png",
+    "/common/evig/sd105a.png",
+    "/common/evig/sd105b.png",
+    "/common/evig/sd201.png",
+    "/common/evig/sd201b.png",
+    "/common/evig/sd201c.png",
+    "/common/evig/sd201d.png",
+    "/common/evig/sd202.png",
+    "/common/evig/sd301.png",
+    "/common/evig/sd302.png",
+    "/common/evig/sd401.png",
+    "/common/evig/sd402a.png",
+    "/common/evig/sd402b.png",
+    "/common/evig/sd403a.png",
+    "/common/evig/sd403b.png",
+    "/common/evig/sd404.png",
+    "/common/evig/sd501a.png",
+    "/common/evig/sd501b_rbb04_336x480.png",
+    "/common/evig/sd501c.png",
+    "/common/evig/sd501d.png",
+    "/common/evig/sd601a.png",
+    "/common/evig/sd601b.png",
+    "/common/evig/sd601c.png",
+    
+    "/common/evig/hcg_11_1.jpg",
+    "/common/evig/hcg_11_2.jpg",
+    "/common/evig/hcg_11_3.jpg",
+    "/common/evig/hcg_11_4.jpg",
+    "/common/evig/hcg_11_5.jpg",
+    "/common/evig/hcg_12_1.jpg",
+    "/common/evig/hcg_12_2.jpg",
+    "/common/evig/hcg_12_3.jpg",
+    "/common/evig/hcg_13_1.jpg",
+    "/common/evig/hcg_13_2.jpg",
+    "/common/evig/hcg_13_3.jpg",
+    "/common/evig/hcg_13_4.jpg",
+    "/common/evig/hcg_13_5.jpg",
+    "/common/evig/hcg_13_6.jpg",
+    "/common/evig/hcg_14_1.jpg",
+    "/common/evig/hcg_14_2.jpg",
+    "/common/evig/hcg_14_3.jpg",
+    "/common/evig/hcg_15_1.jpg",
+    "/common/evig/hcg_15_2.jpg",
+    "/common/evig/hcg_16_1.jpg",
+    "/common/evig/hcg_16_2.jpg",
+    "/common/evig/hcg_16_3.jpg",
+    "/common/evig/hcg_16_4.jpg",
+    "/common/evig/hcg_16_5.jpg",
+    "/common/evig/hcg_16_6.jpg",
+    "/common/evig/hcg_17_1.jpg",
+    "/common/evig/hcg_17_2.jpg",
+    "/common/evig/hcg_17_3.jpg",
+    "/common/evig/hcg_17_4.jpg",
+    "/common/evig/hcg_18_1.jpg",
+    "/common/evig/hcg_18_2.jpg",
+    "/common/evig/hcg_18_3.jpg",
+    "/common/evig/hcg_18_4.jpg",
+    "/common/evig/hcg_18_5.jpg",
+    "/common/evig/hcg_18_6.jpg",
+    "/common/evig/hcg_18_7.jpg",
+    "/common/evig/hcg_18_8.jpg",
+    "/common/evig/hcg_19_1.jpg",
+    "/common/evig/hcg_19_2.jpg",
+    "/common/evig/hcg_19_3.jpg",
+    "/common/evig/hcg_19_4.jpg",
+    "/common/evig/hcg_19_5.jpg",
+    "/common/evig/hcg_20_1.jpg",
+    "/common/evig/hcg_20_2.jpg",
+    "/common/evig/hcg_20_3.jpg",
+    "/common/evig/hcg_20_4.jpg",
+    "/common/evig/hcg_21_1.jpg",
+    "/common/evig/hcg_21_2.jpg",
+    "/common/evig/hcg_21_3.jpg",
+    "/common/evig/hcg_21_4.jpg",
+    "/common/evig/hcg_21_5.jpg",
+    "/common/evig/hcg_22_1.jpg",
+    "/common/evig/hcg_22_2.jpg",
+    "/common/evig/hcg_22_3.jpg",
+    "/common/evig/hcg_22_4.jpg",
+    "/common/evig/hcg_22_5.jpg",
+    "/common/evig/hcg_22_6.jpg",
+    "/common/evig/hcg_23_1.jpg",
+    "/common/evig/hcg_23_2.jpg",
+    "/common/evig/hcg_23_3.jpg",
+    "/common/evig/hcg_24_1.jpg",
+    "/common/evig/hcg_24_2.jpg",
+    "/common/evig/hcg_24_3.jpg",
+    "/common/evig/hcg_24_4.jpg",
+    "/common/evig/hcg_24_5.jpg",
+    "/common/evig/hcg_25_1.jpg",
+    "/common/evig/hcg_25_2.jpg",
+    "/common/evig/hcg_26_1.jpg",
+    "/common/evig/hcg_26_2.jpg",
+    "/common/evig/hcg_26_3.jpg",
+    "/common/evig/hcg_26_4.jpg",
+    "/common/evig/hcg_27_1.jpg",
+    "/common/evig/hcg_27_2.jpg",
+    "/common/evig/hcg_27_3.jpg",
+    "/common/evig/hcg_27_4.jpg",
+    "/common/evig/hcg_27_5.jpg",
+    "/common/evig/hcg_27_6.jpg",
+    "/common/evig/hcg_28_1.jpg",
+    "/common/evig/hcg_28_2.jpg",
+    "/common/evig/hcg_28_3.jpg",
+    "/common/evig/hcg_28_4.jpg",
+    "/common/evig/hcg_29_1.jpg",
+    "/common/evig/hcg_29_2.jpg",
+    "/common/evig/hcg_30_1.jpg",
+    "/common/evig/hcg_30_2.jpg",
+    "/common/evig/hcg_30_3.jpg",
+    "/common/evig/hcg_30_4.jpg",
+    "/common/evig/hcg_31_1.jpg",
+    "/common/evig/hcg_31_2.jpg",
+    "/common/evig/hcg_31_3.jpg",
+    "/common/evig/hcg_31_4.jpg",
+    "/common/evig/hcg_32_1.jpg",
+    "/common/evig/hcg_32_2.jpg",
+    "/common/evig/hcg_32_3.jpg",
+    "/common/evig/hcg_33_1.jpg",
+    "/common/evig/hcg_33_2.jpg",
+    "/common/evig/hcg_33_3.jpg",
+    "/common/evig/hcg_33_4.jpg",
+    "/common/evig/hcg_33_5.jpg",
+    "/common/evig/hcg_33_6.jpg",
+    "/common/evig/hcg_34_1.jpg",
+    "/common/evig/hcg_34_2.jpg",
+    "/common/evig/hcg_34_3.jpg",
+    "/common/evig/hcg_34_4.jpg",
+    "/common/evig/hcg_34_5.jpg",
+    "/common/evig/hcg_35_1.jpg",
+    "/common/evig/hcg_35_2.jpg",
+    "/common/evig/hcg_36_1.jpg",
+    "/common/evig/hcg_36_2.jpg",
+    "/common/evig/hcg_36_3.jpg",
+    "/common/evig/hcg_36_4.jpg",
+    "/common/evig/hcg_37_1.jpg",
+    "/common/evig/hcg_37_2.jpg",
+    "/common/evig/hcg_38_1.jpg",
+    "/common/evig/hcg_38_2.jpg",
+    "/common/evig/hcg_38_3.jpg",
+    "/common/evig/hcg_38_4.jpg",
+    "/common/evig/hcg_38_5.jpg",
+    "/common/evig/hcg_39_1.jpg",
+    "/common/evig/hcg_39_2.jpg",
+    "/common/evig/hcg_39_3.jpg",
+    "/common/evig/hcg_39_4.jpg",
+    "/common/evig/hcg_40_1.jpg",
+    "/common/evig/hcg_40_2.jpg",
+    "/common/evig/hcg_40_3.jpg",
+    "/common/evig/hcg_40_4.jpg",
+    "/common/evig/hcg_41_1.jpg",
+    "/common/evig/hcg_41_2.jpg",
+    "/common/evig/hcg_41_3.jpg",
+    "/common/evig/hcg_41_4.jpg",
+    "/common/evig/hcg_41_5.jpg",
+    "/common/evig/hcg_42_1.jpg",
+    "/common/evig/hcg_42_2.jpg",
+    "/common/evig/hcg_42_3.jpg",
+    "/common/evig/hcg_42_4.jpg",
+    "/common/evig/hcg_42_5.jpg",
+    "/common/evig/hcg_43_1.jpg",
+    "/common/evig/hcg_43_10.jpg",
+    "/common/evig/hcg_43_11.jpg",
+    "/common/evig/hcg_43_2.jpg",
+    "/common/evig/hcg_43_3.jpg",
+    "/common/evig/hcg_43_4.jpg",
+    "/common/evig/hcg_43_5.jpg",
+    "/common/evig/hcg_43_6.jpg",
+    "/common/evig/hcg_43_7.jpg",
+    "/common/evig/hcg_43_8.jpg",
+    "/common/evig/hcg_43_9.jpg",
+    "/common/evig/hcg_44_1.jpg",
+    "/common/evig/hcg_44_10.jpg",
+    "/common/evig/hcg_44_11.jpg",
+    "/common/evig/hcg_44_12.jpg",
+    "/common/evig/hcg_44_13.jpg",
+    "/common/evig/hcg_44_2.jpg",
+    "/common/evig/hcg_44_3.jpg",
+    "/common/evig/hcg_44_4.jpg",
+    "/common/evig/hcg_44_5.jpg",
+    "/common/evig/hcg_44_6.jpg",
+    "/common/evig/hcg_44_7.jpg",
+    "/common/evig/hcg_44_8.jpg",
+    "/common/evig/hcg_44_9.jpg",
+    "/common/evig/hcg_45_1.jpg",
+    "/common/evig/hcg_45_2.jpg",
+    "/common/evig/hcg_45_3.jpg",
+    "/common/evig/hcg_45_4.jpg",
+    "/common/evig/hcg_45_5.jpg",
+    "/common/evig/hcg_45_6.jpg",
+    "/common/evig/hcg_45_7.jpg",
+    "/common/evig/hcg_46_1.jpg",
+    "/common/evig/hcg_46_2.jpg",
+    "/common/evig/hcg_46_3.jpg",
+    "/common/evig/hcg_46_4.jpg",
+    "/common/evig/hcg_46_5.jpg",
+    "/common/evig/hcg_46_6.jpg",
+    "/common/evig/hcg_46_7.jpg",
+    "/common/evig/hcg_46_8.jpg",
+    "/common/evig/hcg_47_1.jpg",
+    "/common/evig/hcg_47_2.jpg",
+    "/common/evig/hcg_48_1.jpg",
+    "/common/evig/hcg_48_2.jpg",
+    "/common/evig/hcg_48_3.jpg",
+    "/common/evig/hcg_48_4.jpg",
+    "/common/evig/hcg_48_5.jpg",
+    "/common/evig/hcg_49_1.jpg",
+    "/common/evig/hcg_49_2.jpg",
+    "/common/evig/hcg_49_3.jpg",
+    "/common/evig/hcg_49_4.jpg",
+    "/common/evig/hcg_50_1.jpg",
+    "/common/evig/hcg_50_10.jpg",
+    "/common/evig/hcg_50_2.jpg",
+    "/common/evig/hcg_50_3.jpg",
+    "/common/evig/hcg_50_4.jpg",
+    "/common/evig/hcg_50_5.jpg",
+    "/common/evig/hcg_50_6.jpg",
+    "/common/evig/hcg_50_7.jpg",
+    "/common/evig/hcg_50_8.jpg",
+    "/common/evig/hcg_50_9.jpg",
+    "/common/evig/hcg_51_1.jpg",
+    "/common/evig/hcg_52_1.jpg",
+    "/common/evig/hcg_52_2.jpg",
+    "/common/evig/hcg_52_3.jpg",
+    "/common/evig/hcg_52_4.jpg",
+    "/common/evig/hcg_52_5.jpg",
+    "/common/evig/hcg_53_1.jpg",
+    "/common/evig/hcg_53_2.jpg",
+    "/common/evig/hcg_53_3.jpg",
+    "/common/evig/hcg_53_4.jpg",
+    "/common/evig/hcg_53_5.jpg",
+    "/common/evig/hcg_53_6.jpg",
+    "/common/evig/hcg_54_1.jpg",
+    "/common/evig/hcg_54_2.jpg",
+    "/common/evig/hcg_54_3.jpg",
+    "/common/evig/hcg_54_4.jpg",
+    "/common/evig/hcg_54_5.jpg",
+    "/common/evig/hcg_54_6.jpg",
+    "/common/evig/hcg_55_1.jpg",
+    "/common/evig/hcg_55_2.jpg",
+    "/common/evig/hcg_56_1.jpg",
+    "/common/evig/hcg_56_2.jpg",
+    "/common/evig/hcg_56_3.jpg",
+    "/common/evig/hcg_56_4.jpg",
+    "/common/evig/hcg_57_1.jpg",
+    "/common/evig/hcg_57_2.jpg",
+    "/common/evig/hcg_57_3.jpg",
+    "/common/evig/hcg_57_4.jpg",
+    "/common/evig/hcg_58_1.jpg",
+    "/common/evig/hcg_58_2.jpg",
+    "/common/evig/hcg_58_3.jpg",
+    "/common/evig/hcg_58_4.jpg",
+    "/common/evig/hcg_59_1.jpg",
+    "/common/evig/hcg_59_2.jpg",
+    "/common/evig/hcg_59_3.jpg",
+    "/common/evig/hcg_59_4.jpg",
+    "/common/evig/hcg_59_5.jpg",
+    "/common/evig/hcg_59_6.jpg",
+    "/common/evig/hcg_59_7.jpg",
+    "/common/evig/hcg_60_1.jpg",
+    "/common/evig/hcg_60_2.jpg",
+    "/common/evig/hcg_60_3.jpg",
+    "/common/evig/hcg_60_4.jpg",
+    "/common/evig/hcg_60_5.jpg",
+    "/common/evig/hcg_60_6.jpg",
+    "/common/evig/hcg_60_7.jpg",
+    "/common/evig/hcg_70_1.jpg",
+    "/common/evig/hcg_70_2.jpg",
+    "/common/evig/hcg_70_3.jpg",
+    "/common/evig/hcg_70_4.jpg",
+    "/common/evig/hcg_71_1.jpg",
+    "/common/evig/hcg_71_2.jpg",
+    "/common/evig/hcg_71_3.jpg",
+    "/common/evig/hcg_71_4.jpg",
+    "/common/evig/hcg_71_5.jpg",
+    "/common/evig/hcg_71_6.jpg",
+    "/common/evig/hcg_71_7.jpg",
+    "/common/evig/hcg_72_1.jpg",
+    "/common/evig/hcg_72_2.jpg",
+    "/common/evig/hcg_72_3.jpg",
+    "/common/evig/hcg_72_4.jpg",
+    "/common/evig/hcg_72_5.jpg",
+    "/common/evig/hcg_73_1.jpg",
+    "/common/evig/hcg_73_2.jpg",
+    "/common/evig/hcg_73_3.jpg"
+        ],
+        cgIndex: 0,
+        currentCG: '',
+        
+        // 立绘鉴赏相关 - 硬编码列表
+        characterList: [
+    "/common/cimg/hz01_1.png",
+    "/common/cimg/hz01_2.png",
+    "/common/cimg/hz01_3.png",
+    "/common/cimg/hz02_1.png",
+    "/common/cimg/hz02_2.png",
+    "/common/cimg/hz03_1.png",
+    "/common/cimg/hz03_2.png",
+    "/common/cimg/hz03_3.png",
+    "/common/cimg/hz04_1.png",
+    "/common/cimg/hz04_2.png",
+    "/common/cimg/hz05_1.png",
+    "/common/cimg/hz05_2.png",
+    "/common/cimg/hz05_3.png",
+    "/common/cimg/hz06_1.png",
+    "/common/cimg/hz06_2.png",
+    "/common/cimg/hz07_1.png",
+    "/common/cimg/hz07_2.png",
+    "/common/cimg/hz07_3.png",
+    "/common/cimg/hz08_1.png",
+    "/common/cimg/hz08_2.png",
+    "/common/cimg/hz09_1.png",
+    "/common/cimg/hz09_2.png",
+    "/common/cimg/hz09_3.png",
+    "/common/cimg/hz10_1.png",
+    "/common/cimg/hz10_2.png",
+    "/common/cimg/hz11_1.png",
+    "/common/cimg/hz11_2.png",
+    "/common/cimg/hz11_3.png",
+    "/common/cimg/hz12_1.png",
+    "/common/cimg/hz12_2.png",
+    "/common/cimg/hz13_1.png",
+    "/common/cimg/hz13_2.png",
+    "/common/cimg/hz13_3.png",
+    "/common/cimg/hz14_1.png",
+    "/common/cimg/hz14_2.png",
+    "/common/cimg/hz15_1.png",
+    "/common/cimg/hz15_2.png",
+    "/common/cimg/hz15_3.png",
+    "/common/cimg/hz16_1.png",
+    "/common/cimg/hz16_2.png",
+    "/common/cimg/hz17_1.png",
+    "/common/cimg/hz17_2.png",
+    "/common/cimg/hz17_3.png",
+    "/common/cimg/hz18_1.png",
+    "/common/cimg/hz18_2.png",
+    "/common/cimg/hz19_1.png",
+    "/common/cimg/hz19_2.png",
+    "/common/cimg/hz19_3.png",
+    "/common/cimg/hz20_1.png",
+    "/common/cimg/hz20_2.png",
+    "/common/cimg/j01_1.png",
+    "/common/cimg/j02_2.png",
+    "/common/cimg/llz01_1.png",
+    "/common/cimg/llz01_2.png",
+    "/common/cimg/llz01_3.png",
+    "/common/cimg/llz02_1.png",
+    "/common/cimg/llz02_2.png",
+    "/common/cimg/llz02_3.png",
+    "/common/cimg/llz03_1.png",
+    "/common/cimg/llz03_2.png",
+    "/common/cimg/llz03_3.png",
+    "/common/cimg/llz04_1.png",
+    "/common/cimg/llz04_2.png",
+    "/common/cimg/llz04_3.png",
+    "/common/cimg/llz05_1.png",
+    "/common/cimg/llz05_2.png",
+    "/common/cimg/llz05_3.png",
+    "/common/cimg/llz06_1.png",
+    "/common/cimg/llz06_2.png",
+    "/common/cimg/llz06_3.png",
+    "/common/cimg/llz07_1.png",
+    "/common/cimg/llz07_2.png",
+    "/common/cimg/llz07_3.png",
+    "/common/cimg/llz08_1.png",
+    "/common/cimg/llz08_2.png",
+    "/common/cimg/llz08_3.png",
+    "/common/cimg/llz09_1.png",
+    "/common/cimg/llz09_2.png",
+    "/common/cimg/llz09_3.png",
+    "/common/cimg/mg01_1.png",
+    "/common/cimg/mg02_2.png",
+    "/common/cimg/mj01_1.png",
+    "/common/cimg/mj01_2.png",
+    "/common/cimg/mj01_3.png",
+    "/common/cimg/mj02_1.png",
+    "/common/cimg/mj02_2.png",
+    "/common/cimg/mj02_3.png",
+    "/common/cimg/mj03_1.png",
+    "/common/cimg/mj03_2.png",
+    "/common/cimg/mj03_3.png",
+    "/common/cimg/mj04_1.png",
+    "/common/cimg/mj04_2.png",
+    "/common/cimg/mj04_3.png",
+    "/common/cimg/mj05_1.png",
+    "/common/cimg/mj05_2.png",
+    "/common/cimg/mj05_3.png",
+    "/common/cimg/nyh01_1.png",
+    "/common/cimg/nyh01_2.png",
+    "/common/cimg/nyh01_3.png",
+    "/common/cimg/nyh02_1.png",
+    "/common/cimg/nyh02_2.png",
+    "/common/cimg/nyh02_3.png",
+    "/common/cimg/nyh03_1.png",
+    "/common/cimg/nyh03_2.png",
+    "/common/cimg/nyh04_1.png",
+    "/common/cimg/nyh04_2.png",
+    "/common/cimg/nyh04_3.png",
+    "/common/cimg/nyh05_1.png",
+    "/common/cimg/nyh05_2.png",
+    "/common/cimg/nyh05_3.png",
+    "/common/cimg/nyh06_3.png",
+    "/common/cimg/qhz.png",
+    "/common/cimg/qllz.png",
+    "/common/cimg/qmj.png",
+    "/common/cimg/qnyh.png",
+    "/common/cimg/qwz.png",
+    "/common/cimg/qxy.png",
+    "/common/cimg/qxz.png",
+    "/common/cimg/qyw.png",
+    "/common/cimg/wz01_1.png",
+    "/common/cimg/wz01_2.png",
+    "/common/cimg/wz02_1.png",
+    "/common/cimg/wz02_2.png",
+    "/common/cimg/wz03_1.png",
+    "/common/cimg/wz03_2.png",
+    "/common/cimg/wz04_1.png",
+    "/common/cimg/wz04_2.png",
+    "/common/cimg/wz05_1.png",
+    "/common/cimg/wz05_2.png",
+    "/common/cimg/wz06_1.png",
+    "/common/cimg/wz06_2.png",
+    "/common/cimg/wz07_1.png",
+    "/common/cimg/wz07_2.png",
+    "/common/cimg/wz08_1.png",
+    "/common/cimg/wz08_2.png",
+    "/common/cimg/x01_1.png",
+    "/common/cimg/x02_2.png",
+    "/common/cimg/xz01_1.png",
+    "/common/cimg/xz01_2.png",
+    "/common/cimg/xz01_3.png",
+    "/common/cimg/xz02_1.png",
+    "/common/cimg/xz02_2.png",
+    "/common/cimg/xz02_3.png",
+    "/common/cimg/xz03_1.png",
+    "/common/cimg/xz03_2.png",
+    "/common/cimg/xz03_3.png",
+    "/common/cimg/xz04_1.png",
+    "/common/cimg/xz04_2.png",
+    "/common/cimg/xz04_3.png",
+    "/common/cimg/xz05_1.png",
+    "/common/cimg/xz05_2.png",
+    "/common/cimg/xz05_3.png",
+    "/common/cimg/xz06_1.png",
+    "/common/cimg/xz06_2.png",
+    "/common/cimg/xz06_3.png",
+    "/common/cimg/xz07_1.png",
+    "/common/cimg/xz07_2.png",
+    "/common/cimg/xz07_3.png",
+    "/common/cimg/xz08_1.png",
+    "/common/cimg/xz08_2.png",
+    "/common/cimg/xz08_3.png",
+    "/common/cimg/xz09_1.png",
+    "/common/cimg/xz09_2.png",
+    "/common/cimg/xz09_3.png",
+    "/common/cimg/xz10_1.png",
+    "/common/cimg/xz10_2.png",
+    "/common/cimg/xz10_3.png",
+    "/common/cimg/xz11_1.png",
+    "/common/cimg/xz11_2.png",
+    "/common/cimg/xz11_3.png",
+    "/common/cimg/xz12_1.png",
+    "/common/cimg/xz12_2.png",
+    "/common/cimg/xz12_3.png",
+    "/common/cimg/yw01_1.png",
+    "/common/cimg/yw01_2.png",
+    "/common/cimg/yw01_3.png",
+    "/common/cimg/yw02_1.png",
+    "/common/cimg/yw02_2.png",
+    "/common/cimg/yw02_3.png",
+    "/common/cimg/yw03_1.png",
+    "/common/cimg/yw03_2.png",
+    "/common/cimg/yw03_3.png",
+    "/common/cimg/yw04_1.png",
+    "/common/cimg/yw04_2.png",
+    "/common/cimg/yw04_3.png",
+    "/common/cimg/yw05_1.png",
+    "/common/cimg/yw05_2.png",
+    "/common/cimg/yw05_3.png",
+    "/common/cimg/yw06_1.png",
+    "/common/cimg/yw06_2.png",
+    "/common/cimg/yw06_3.png",
+    "/common/cimg/yw07_1.png",
+    "/common/cimg/yw07_2.png",
+    "/common/cimg/yw07_3.png",
+    "/common/cimg/yw08_1.png",
+    "/common/cimg/yw08_2.png",
+    "/common/cimg/yw08_3.png",
+    "/common/cimg/yw09_1.png",
+    "/common/cimg/yw09_2.png",
+    "/common/cimg/yw09_3.png",
+    "/common/cimg/yw10_1.png",
+    "/common/cimg/yw10_2.png",
+    "/common/cimg/yw10_3.png",
+    "/common/cimg/yw11_1.png",
+    "/common/cimg/yw11_2.png",
+    "/common/cimg/yw11_3.png",
+    "/common/cimg/yw12_1.png",
+    "/common/cimg/yw12_2.png",
+    "/common/cimg/yw12_3.png",
+    "/common/cimg/yw13_1.png",
+    "/common/cimg/yw13_2.png",
+    "/common/cimg/yw13_3.png",
+    "/common/cimg/yw14_1.png",
+    "/common/cimg/yw14_2.png",
+    "/common/cimg/yw14_3.png"
+        ],
+        charIndex: 0,
+        currentChar: '/common/cimg/hz302.png',
+        
+        backgroundList: [
+    "/common/bcgi/ヒロイン_恵凪の部屋a.jpg",
+    "/common/bcgi/ヒロイン_恵凪の部屋b.jpg",
+    "/common/bcgi/ヒロイン_恵凪の部屋c.jpg",
+    "/common/bcgi/ヒロイン_恵凪の部屋d.jpg",
+    "/common/bcgi/ヒロイン_恵凪の部屋m.jpg",
+    "/common/bcgi/ヒロイン_恵凪の部屋花火c.jpg",
+    "/common/bcgi/ヒロイン_恵凪の部屋花火d.jpg",
+    "/common/bcgi/ヒロイン_月望の部屋a.jpg",
+    "/common/bcgi/ヒロイン_月望の部屋b.jpg",
+    "/common/bcgi/ヒロイン_月望の部屋c.jpg",
+    "/common/bcgi/ヒロイン_月望の部屋d.jpg",
+    "/common/bcgi/ヒロイン_月望の部屋m.jpg",
+    "/common/bcgi/ヒロイン_杏珠の部屋a.jpg",
+    "/common/bcgi/ヒロイン_杏珠の部屋b.jpg",
+    "/common/bcgi/ヒロイン_杏珠の部屋c.jpg",
+    "/common/bcgi/ヒロイン_杏珠の部屋d.jpg",
+    "/common/bcgi/ヒロイン_杏珠の部屋m.jpg",
+    "/common/bcgi/ヒロイン_美玖の部屋a.jpg",
+    "/common/bcgi/ヒロイン_美玖の部屋b.jpg",
+    "/common/bcgi/ヒロイン_美玖の部屋c.jpg",
+    "/common/bcgi/ヒロイン_美玖の部屋d.jpg",
+    "/common/bcgi/ヒロイン_美玖の部屋m.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋_掃除a.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋_掃除b.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋_掃除c.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋_掃除d.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋_掃除m.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋a.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋b.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋c.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋d.jpg",
+    "/common/bcgi/ヒロイン_莉々子の部屋m.jpg",
+    "/common/bcgi/ヒロイン_那優花の部屋a.jpg",
+    "/common/bcgi/ヒロイン_那優花の部屋b.jpg",
+    "/common/bcgi/ヒロイン_那優花の部屋c.jpg",
+    "/common/bcgi/ヒロイン_那優花の部屋d.jpg",
+    "/common/bcgi/ヒロイン_那優花の部屋m.jpg",
+    "/common/bcgi/ライブ_ライブハウス.jpg",
+    "/common/bcgi/ライブ_ライブ中.jpg",
+    "/common/bcgi/ライブ_楽屋.jpg",
+    "/common/bcgi/ライブ_練習用スタジオ.jpg",
+    "/common/bcgi/学園_体育館a_冬.jpg",
+    "/common/bcgi/学園_体育館a_夏.jpg",
+    "/common/bcgi/学園_体育館a_春.jpg",
+    "/common/bcgi/学園_体育館a_秋.jpg",
+    "/common/bcgi/学園_体育館m_春.jpg",
+    "/common/bcgi/学園_体育館文化祭.jpg",
+    "/common/bcgi/学園_体育館部活紹介.jpg",
+    "/common/bcgi/学園_学生会室a_冬.jpg",
+    "/common/bcgi/学園_学生会室a_夏.jpg",
+    "/common/bcgi/学園_学生会室a_春.jpg",
+    "/common/bcgi/学園_学生会室a_秋.jpg",
+    "/common/bcgi/学園_廊下a_冬.jpg",
+    "/common/bcgi/学園_廊下a_夏.jpg",
+    "/common/bcgi/学園_廊下a_春.jpg",
+    "/common/bcgi/学園_廊下a_秋.jpg",
+    "/common/bcgi/学園_廊下b_夏.jpg",
+    "/common/bcgi/学園_廊下c_夏.jpg",
+    "/common/bcgi/学園_廊下d_夏.jpg",
+    "/common/bcgi/学園_教室a_冬.jpg",
+    "/common/bcgi/学園_教室a_夏.jpg",
+    "/common/bcgi/学園_教室a_春.jpg",
+    "/common/bcgi/学園_教室a_秋.jpg",
+    "/common/bcgi/学園_教室b_夏.jpg",
+    "/common/bcgi/学園_教室b_秋.jpg",
+    "/common/bcgi/学園_教室c_夏.jpg",
+    "/common/bcgi/学園_教室d_夏.jpg",
+    "/common/bcgi/学園_教室休憩a_冬.jpg",
+    "/common/bcgi/学園_教室休憩a_夏.jpg",
+    "/common/bcgi/学園_教室休憩a_春.jpg",
+    "/common/bcgi/学園_教室休憩a_秋.jpg",
+    "/common/bcgi/学園_教室授業a_冬.jpg",
+    "/common/bcgi/学園_教室授業a_夏.jpg",
+    "/common/bcgi/学園_教室授業a_春.jpg",
+    "/common/bcgi/学園_教室授業a_秋.jpg",
+    "/common/bcgi/学園_教室文化祭.jpg",
+    "/common/bcgi/学園_正面a_冬.jpg",
+    "/common/bcgi/学園_正面a_夏.jpg",
+    "/common/bcgi/学園_正面a_春.jpg",
+    "/common/bcgi/学園_正面a_秋.jpg",
+    "/common/bcgi/学園_正面b_冬.jpg",
+    "/common/bcgi/学園_正面b_夏.jpg",
+    "/common/bcgi/学園_正面b_春.jpg",
+    "/common/bcgi/学園_正面b_秋.jpg",
+    "/common/bcgi/学園_正面c_冬.jpg",
+    "/common/bcgi/学園_正面c_夏.jpg",
+    "/common/bcgi/学園_正面c_春.jpg",
+    "/common/bcgi/学園_正面c_秋.jpg",
+    "/common/bcgi/学園_黒板.jpg",
+    "/common/bcgi/居酒屋_バックヤード.jpg",
+    "/common/bcgi/居酒屋_店内.jpg",
+    "/common/bcgi/演出_ライト2.jpg",
+    "/common/bcgi/特殊_ピアノ部屋a.jpg",
+    "/common/bcgi/特殊_ピアノ部屋b.jpg",
+    "/common/bcgi/特殊_ピアノ部屋c.jpg",
+    "/common/bcgi/特殊_ピアノ部屋d.jpg",
+    "/common/bcgi/特殊_別荘a.jpg",
+    "/common/bcgi/特殊_別荘b.jpg",
+    "/common/bcgi/特殊_別荘c.jpg",
+    "/common/bcgi/特殊_別荘d.jpg",
+    "/common/bcgi/特殊_花火大会会場c.jpg",
+    "/common/bcgi/特殊_鸞鏡教室a.jpg",
+    "/common/bcgi/特殊_鸞鏡教室b.jpg",
+    "/common/bcgi/特殊_鸞鏡教室c.jpg",
+    "/common/bcgi/特殊_鸞鏡教室d.jpg",
+    "/common/bcgi/特殊_鸞鏡教室休憩.jpg",
+    "/common/bcgi/特殊_鸞鏡教室休憩_夏.jpg",
+    "/common/bcgi/特殊_鸞鏡教室授業.jpg",
+    "/common/bcgi/特殊_鸞鏡教室授業_夏.jpg",
+    "/common/bcgi/画面_白.jpg",
+    "/common/bcgi/画面_黒.jpg",
+    "/common/bcgi/空_夕_冬.jpg",
+    "/common/bcgi/空_夕_夏.jpg",
+    "/common/bcgi/空_夕_春.jpg",
+    "/common/bcgi/空_夕_秋.jpg",
+    "/common/bcgi/空_夜_冬.jpg",
+    "/common/bcgi/空_夜_夏.jpg",
+    "/common/bcgi/空_夜_春.jpg",
+    "/common/bcgi/空_夜_秋.jpg",
+    "/common/bcgi/空_昼_冬.jpg",
+    "/common/bcgi/空_昼_夏.jpg",
+    "/common/bcgi/空_昼_春.jpg",
+    "/common/bcgi/空_昼_秋.jpg",
+    "/common/bcgi/自宅_リビングa_冬.jpg",
+    "/common/bcgi/自宅_リビングa_夏.jpg",
+    "/common/bcgi/自宅_リビングa_春.jpg",
+    "/common/bcgi/自宅_リビングa_秋.jpg",
+    "/common/bcgi/自宅_リビングb_冬.jpg",
+    "/common/bcgi/自宅_リビングb_夏.jpg",
+    "/common/bcgi/自宅_リビングb_春.jpg",
+    "/common/bcgi/自宅_リビングb_秋.jpg",
+    "/common/bcgi/自宅_リビングc_冬.jpg",
+    "/common/bcgi/自宅_リビングc_夏.jpg",
+    "/common/bcgi/自宅_リビングc_春.jpg",
+    "/common/bcgi/自宅_リビングc_秋.jpg",
+    "/common/bcgi/自宅_リビングd_冬.jpg",
+    "/common/bcgi/自宅_リビングd_夏.jpg",
+    "/common/bcgi/自宅_リビングd_春.jpg",
+    "/common/bcgi/自宅_リビングd_秋.jpg",
+    "/common/bcgi/自宅_天井a.jpg",
+    "/common/bcgi/自宅_天井c.jpg",
+    "/common/bcgi/自宅_天井d.jpg",
+    "/common/bcgi/自宅_天井m.jpg",
+    "/common/bcgi/自宅_自室a.jpg",
+    "/common/bcgi/自宅_自室b.jpg",
+    "/common/bcgi/自宅_自室c.jpg",
+    "/common/bcgi/自宅_自室d.jpg",
+    "/common/bcgi/自宅_自室m.jpg",
+    "/common/bcgi/街_ラブホ.jpg",
+    "/common/bcgi/街_ラブホ消灯.jpg",
+    "/common/bcgi/街_店の前a_冬.jpg",
+    "/common/bcgi/街_店の前a_夏.jpg",
+    "/common/bcgi/街_店の前a_春.jpg",
+    "/common/bcgi/街_店の前a_秋.jpg",
+    "/common/bcgi/街_店の前b_冬.jpg",
+    "/common/bcgi/街_店の前b_夏.jpg",
+    "/common/bcgi/街_店の前b_春.jpg",
+    "/common/bcgi/街_店の前b_秋.jpg",
+    "/common/bcgi/街_店の前c_冬.jpg",
+    "/common/bcgi/街_店の前c_夏.jpg",
+    "/common/bcgi/街_店の前c_春.jpg",
+    "/common/bcgi/街_店の前c_秋.jpg",
+    "/common/bcgi/街_繁華街a_冬.jpg",
+    "/common/bcgi/街_繁華街a_夏.jpg",
+    "/common/bcgi/街_繁華街a_春.jpg",
+    "/common/bcgi/街_繁華街a_秋.jpg",
+    "/common/bcgi/街_繁華街a_音楽祭.jpg",
+    "/common/bcgi/街_繁華街b_冬.jpg",
+    "/common/bcgi/街_繁華街b_夏.jpg",
+    "/common/bcgi/街_繁華街b_春.jpg",
+    "/common/bcgi/街_繁華街b_秋.jpg",
+    "/common/bcgi/街_繁華街b_音楽祭.jpg",
+    "/common/bcgi/街_繁華街c_冬.jpg",
+    "/common/bcgi/街_繁華街c_夏.jpg",
+    "/common/bcgi/街_繁華街c_春.jpg",
+    "/common/bcgi/街_繁華街c_秋.jpg",
+    "/common/bcgi/街_繁華街c_音楽祭.jpg",
+    "/common/bcgi/街_裏道a_冬.jpg",
+    "/common/bcgi/街_裏道a_夏.jpg",
+    "/common/bcgi/街_裏道a_春.jpg",
+    "/common/bcgi/街_裏道a_秋.jpg",
+    "/common/bcgi/街_裏道b_冬.jpg",
+    "/common/bcgi/街_裏道b_夏.jpg",
+    "/common/bcgi/街_裏道b_春.jpg",
+    "/common/bcgi/街_裏道b_秋.jpg",
+    "/common/bcgi/街_裏道c_冬.jpg",
+    "/common/bcgi/街_裏道c_夏.jpg",
+    "/common/bcgi/街_裏道c_春.jpg",
+    "/common/bcgi/街_裏道c_秋.jpg",
+    "/common/bcgi/街_通学路a_冬.jpg",
+    "/common/bcgi/街_通学路a_夏.jpg",
+    "/common/bcgi/街_通学路a_春.jpg",
+    "/common/bcgi/街_通学路a_秋.jpg",
+    "/common/bcgi/街_通学路b_冬.jpg",
+    "/common/bcgi/街_通学路b_夏.jpg",
+    "/common/bcgi/街_通学路b_春.jpg",
+    "/common/bcgi/街_通学路b_秋.jpg",
+    "/common/bcgi/街_通学路c_冬.jpg",
+    "/common/bcgi/街_通学路c_夏.jpg",
+    "/common/bcgi/街_通学路c_春.jpg",
+    "/common/bcgi/街_通学路c_秋.jpg",
+    "/common/bcgi/街_道a_冬.jpg",
+    "/common/bcgi/街_道a_夏.jpg",
+    "/common/bcgi/街_道a_春.jpg",
+    "/common/bcgi/街_道a_秋.jpg",
+    "/common/bcgi/街_道b_冬.jpg",
+    "/common/bcgi/街_道b_夏.jpg",
+    "/common/bcgi/街_道b_春.jpg",
+    "/common/bcgi/街_道b_秋.jpg",
+    "/common/bcgi/街_道c_冬.jpg",
+    "/common/bcgi/街_道c_夏.jpg",
+    "/common/bcgi/街_道c_春.jpg",
+    "/common/bcgi/街_道c_秋.jpg",
+    "/common/bcgi/街_駅前a_冬.jpg",
+    "/common/bcgi/街_駅前a_夏.jpg",
+    "/common/bcgi/街_駅前a_春.jpg",
+    "/common/bcgi/街_駅前a_秋.jpg",
+    "/common/bcgi/街_駅前b_冬.jpg",
+    "/common/bcgi/街_駅前b_夏.jpg",
+    "/common/bcgi/街_駅前b_春.jpg",
+    "/common/bcgi/街_駅前b_秋.jpg",
+    "/common/bcgi/街_駅前c_冬.jpg",
+    "/common/bcgi/街_駅前c_夏.jpg",
+    "/common/bcgi/街_駅前c_春.jpg",
+    "/common/bcgi/街_駅前c_秋.jpg",
+    "/common/bcgi/街_駅前消灯_冬.jpg",
+    "/common/bcgi/街_駅前消灯_夏.jpg",
+    "/common/bcgi/街_駅前消灯_春.jpg",
+    "/common/bcgi/街_駅前消灯_秋.jpg"
+        ],
+        bgIndex: 0,
+        currentBg: '/common/bcgi/空_夕_夏.jpg',
+        
+        // 场景鉴赏相关
+        sceneList: [],
+        sceneIndex: 0,
+        cguishow: true,
+        lhchshow: true,
+        lhuishow: true,
+    },
+    
+    onInit() {
+        console.log('鉴赏页面初始化');
+        this.initImages();
+    },
+    
+    // 初始化图片
+    initImages() {
+        console.log('初始化图片列表...');
+        
+        // 设置默认显示图片
+        if (this.cgList.length > 0) {
+            this.currentCG = this.cgList[0];
+            console.log('设置默认CG:', this.currentCG);
+        } else {
+            console.log('CG列表为空');
+        }
+        
+        if (this.characterList.length > 0) {
+            this.currentChar = this.characterList[0];
+            console.log('设置默认角色立绘:', this.currentChar);
+        }
+        
+        if (this.backgroundList.length > 0) {
+            this.currentBg = this.backgroundList[0];
+            console.log('设置默认背景:', this.currentBg);
+        }
+        
+        console.log('图片初始化完成');
+        console.log('CG数量:', this.cgList.length);
+        console.log('立绘数量:', this.characterList.length);
+        console.log('背景数量:', this.backgroundList.length);
+    },
+    
+    // ================= 页面切换方法 =================
+    hidcgui(){
+        this.cguishow = !this.cguishow;
+    },
+    hidlhch(){
+        this.lhchshow = !this.lhchshow;
+    },
+    hidlhui(){
+        this.lhuishow = !this.lhuishow;
+    },
+    showcg() {
+        this.jump = false;
+        this.cgshow = true;
+        this.lhshow = false;
+        this.sceneshow = false;
+        
+        // 确保有图片显示
+        if (this.cgList.length > 0 && this.cgIndex < this.cgList.length) {
+            this.currentCG = this.cgList[this.cgIndex];
+        }
+        
+        console.log('进入CG鉴赏，当前CG:', this.currentCG);
+    },
+    
+    showlh() {
+        this.jump = false;
+        this.cgshow = false;
+        this.lhshow = true;
+        this.sceneshow = false;
+        
+        // 确保有图片显示
+        if (this.characterList.length > 0 && this.charIndex < this.characterList.length) {
+            this.currentChar = this.characterList[this.charIndex];
+        }
+        if (this.backgroundList.length > 0 && this.bgIndex < this.backgroundList.length) {
+            this.currentBg = this.backgroundList[this.bgIndex];
+        }
+        
+        console.log('进入立绘鉴赏，当前角色:', this.currentChar, '背景:', this.currentBg);
+    },
+    
+    showscene() {
+        this.jump = false;
+        this.cgshow = false;
+        this.lhshow = false;
+        this.sceneshow = true;
+        console.log('进入场景鉴赏');
+    },
+    
+    // ================= 图片切换方法 =================
+    
+    // CG上一张
+    lastcg() {
+        if (this.cgList.length === 0) {
+            console.log('CG列表为空，无法切换');
+            return;
+        }
+        
+        this.cgIndex = (this.cgIndex - 1 + this.cgList.length) % this.cgList.length;
+        this.currentCG = this.cgList[this.cgIndex];
+        console.log('切换到CG:', this.cgIndex + 1, '/', this.cgList.length, '路径:', this.currentCG);
+    },
+    
+    // CG下一张
+    entercg() {
+        if (this.cgList.length === 0) {
+            console.log('CG列表为空，无法切换');
+            return;
+        }
+        
+        this.cgIndex = (this.cgIndex + 1) % this.cgList.length;
+        this.currentCG = this.cgList[this.cgIndex];
+        console.log('切换到CG:', this.cgIndex + 1, '/', this.cgList.length, '路径:', this.currentCG);
+    },
+    
+    // 立绘上一个角色
+    lastlh() {
+        if (this.characterList.length === 0) {
+            console.log('角色列表为空，无法切换');
+            return;
+        }
+        
+        this.charIndex = (this.charIndex - 1 + this.characterList.length) % this.characterList.length;
+        this.currentChar = this.characterList[this.charIndex];
+        console.log('切换到立绘:', this.charIndex + 1, '/', this.characterList.length, '路径:', this.currentChar);
+    },
+    
+    // 立绘下一个角色
+    enterlh() {
+        if (this.characterList.length === 0) {
+            console.log('角色列表为空，无法切换');
+            return;
+        }
+        
+        this.charIndex = (this.charIndex + 1) % this.characterList.length;
+        this.currentChar = this.characterList[this.charIndex];
+        console.log('切换到立绘:', this.charIndex + 1, '/', this.characterList.length, '路径:', this.currentChar);
+    },
+    
+    // 背景上一个
+    lastcgb() {
+        if (this.backgroundList.length === 0) {
+            console.log('背景列表为空，无法切换');
+            return;
+        }
+        
+        this.bgIndex = (this.bgIndex - 1 + this.backgroundList.length) % this.backgroundList.length;
+        this.currentBg = this.backgroundList[this.bgIndex];
+        console.log('切换到背景:', this.bgIndex + 1, '/', this.backgroundList.length, '路径:', this.currentBg);
+    },
+    
+    // 背景下一个
+    entercgb() {
+        if (this.backgroundList.length === 0) {
+            console.log('背景列表为空，无法切换');
+            return;
+        }
+        
+        this.bgIndex = (this.bgIndex + 1) % this.backgroundList.length;
+        this.currentBg = this.backgroundList[this.bgIndex];
+        console.log('切换到背景:', this.bgIndex + 1, '/', this.backgroundList.length, '路径:', this.currentBg);
+    },
+    
+    // 返回按钮
+    back() {
+        if (this.jump === true) {
+            router.back({
+                uri: 'pages/more',
+            });
+        } else {
+            this.jump = true;
+            this.cgshow = false;
+            this.lhshow = false;
+            this.sceneshow = false;
+            console.log('返回主菜单');
+        }
+    },
+    
+    // 场景鉴赏相关方法（预留）
+    lastsc() {
+        console.log('上一个场景');
+    },
+    
+    entersc() {
+        console.log('下一个场景');
+    },
+    
+    loadStart() {
+        console.log('开始场景鉴赏');
+    }
+};
+</script>
+
+<style>
+.page {
+    background-color: #bbbbbb;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.info-container{
+    position: absolute;
+    flex-direction: column;
+    align-items: center;
+    bottom: 20px;
+}
+.page2 {
+    background-color: rgba(187, 187, 187, 0);
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 1;
+    width: 336px;
+    height: 480px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.bcg {
+    position: absolute;
+    width: 336px;
+    height: 480px;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    object-fit: cover;
+}
+
+.cgimg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    object-fit: contain;
+    background-color: #000000;
+    z-index: 1;
+}
+
+.character {
+    position: absolute;
+    top: 50px;
+    left: 100px;
+    z-index: 3;
+    transform: scale(0.5);
+}
+
+.backgroundimg {
+    position: absolute;
+    width: 336px;
+    height:480px;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    z-index: 2;
+}
+
+.info-text {
+    font-size: 16px;
+    color: #c0c0c0;
+    text-align: center;
+}
+
+
+
+.mid {
+    font-size: 35px;
+    color: #000000;
+    font-weight: 800;
+}
+
+.bt {
+    position: absolute;
+    bottom: 0;
+    z-index: 10;
+}
+
+.hd {
+    position: absolute;
+    top: 0;
+    z-index: 10;
+}
+
+.last-btn {
+    position: absolute;
+    left: 15px;
+    bottom: 15px;
+    z-index: 10;
+}
+
+.enter-btn {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    z-index: 10;
+}
+
+.last-btn1 {
+    position: absolute;
+    left: 15px;
+    bottom: 100px;
+    z-index: 10;
+}
+
+.enter-btn1 {
+    position: absolute;
+    right: 15px;
+    bottom: 100px;
+    z-index: 10;
+}
+
+.startBtn {
+    position: absolute;
+    bottom: 15px;
+    padding: 15px 40px;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 30px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.startText {
+    font-size: 28px;
+    color: #333333;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.header {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0;
+    position: relative;
+    z-index: 10;
+}
+
+.title {
+    font-size: 36px;
+    color: #ebebeb;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.back-btn {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    z-index: 20;
+}
+
+.content {
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    background-color: rgba(255, 255, 255, 0.726);
+    border-radius: 15px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    margin: 15px;
+    z-index: 2;
+}
+</style>

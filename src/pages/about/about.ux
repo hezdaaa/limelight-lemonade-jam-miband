@@ -1,0 +1,279 @@
+<template> 
+    <div class="page"> 
+    <img class="bcg"src="/common/bcgi/空_夕_夏.jpg"></img> 
+    <img class="bt"src="/common/bt.png"></img> 
+    <img class="hd"src="/common/hd.png"></img> 
+    <scroll id="mainScroll" class="scroll" scroll-y="{{true}}">
+        <div class="header">
+            <text class="title">关于</text> 
+        </div>
+        <div class="content">
+            
+            <text class="app-name">lamelight lemonade jam</text> 
+            <text class="subtitle">小米手环移植版</text> 
+            <text class="author">软件作者：@hezdaaa~</text> 
+            
+            <div class="section-divider"></div>
+            
+            <text class="section-title">★使用说明★</text> 
+            <div class="instruction-item">
+                <text class="bullet">•</text>
+                <text class="instruction-text">点击换页</text>
+            </div>
+            <div class="instruction-item">
+                <text class="bullet">•</text>
+                <text class="instruction-text">左滑上一页</text>
+            </div>
+            <div class="instruction-item">
+                <text class="bullet">•</text>
+                <text class="instruction-text">长按隐藏文本框</text>
+            </div>
+            <div class="instruction-item">
+                <text class="bullet">•</text>
+                <text class="instruction-text">再次点击恢复</text>
+            </div>
+            <div class="instruction-item">
+                <text class="bullet">•</text>
+                <text class="instruction-text">下滑菜单</text>
+            </div>
+            <div class="instruction-item">
+                <text class="bullet">•</text>
+                <text class="instruction-text">上滑隐藏菜单</text>
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <text class="fun-text">点击主页背景图片有惊喜</text> 
+            
+            <div class="update-info">
+                <text class="info-text">已断更</text> 
+                <text class="info-text">可能会继续移植</text> 
+                <text class="info-text">有问题记得提出反馈</text> 
+            </div>
+            
+            <div class="contact-section">
+                <text class="section-title">欢迎加Q群</text> 
+                <text class="highlight-text">224262549</text> 
+                <text class="info-text">软件开源不收费</text> 
+            </div>
+            
+            <div class="thanks-section">
+                <text class="section-title">特别致谢:</text> 
+                <text class="thanks-text">@EC @emm @Wiš'adel.</text> 
+                <text class="thanks-text">@qwq-potato</text> 
+            </div>
+            
+            <div class="original-info">
+                <text class="info-text">移植自视觉小说</text> 
+                <text class="app-name">lamelight lemonade jam</text> 
+                <text class="fun-text">Ciallo～(∠ ·ω< )⌒★</text> 
+                <!-- <text class="original-label">原作</text> 
+                <image class="title-image" src='title_bg0.png'></image>  -->
+            </div>
+            
+        </div>
+        <text class="title"> </text> 
+        </scroll>
+        <img class="back-btn"src="/common/back.png" onclick="back"></img> 
+    </div> 
+</template> 
+
+<script> 
+import router from '@system.router' 
+
+export default { 
+    data:{ 
+        build:false, 
+    }, 
+    back(){ 
+        router.back({ 
+            uri:'pages/index', 
+        }) 
+    }, 
+}; 
+</script> 
+
+<style> 
+.page { 
+    background-color: #bbbbbb; 
+    flex-direction: column; 
+    justify-content: flex-start; 
+    align-items: center; 
+} 
+.bcg{
+    position: absolute;
+    width: 336px;
+    height: 480px;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+.bt{
+    position: absolute;
+    bottom: 0;
+}
+.hd{
+    position: absolute;
+    top: 0;
+}
+.scroll{
+  height: 400px;
+  text-align: left;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  z-index: 0;
+  flex: 1;
+  width: 90%;
+}
+.header {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 20px;
+}
+
+.title { 
+    font-size: 36px;
+    color: #ebebeb;
+    font-weight: bold;
+} 
+
+.back-btn { 
+    position:absolute;
+    left:15px;
+    top: 15px;
+} 
+
+.content {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.726);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+}
+
+.app-name {
+    font-size: 24px;
+    color: #333333;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    font-size: 22px;
+    color: #666666;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.author {
+    font-size: 22px;
+    color: #888888;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.section-divider {
+    width: 90%;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 12px 0;
+}
+
+.section-title {
+    font-size: 24px;
+    color: #333333;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.instruction-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 90%;
+    margin-bottom: 6px;
+}
+
+.bullet {
+    font-size: 20px;
+    color: #4a4a4a;
+    margin-right: 8px;
+}
+
+.instruction-text {
+    font-size: 22px;
+    color: #555555;
+}
+
+.fun-text {
+    font-size: 22px;
+    color: #666666;
+    font-style: italic;
+    text-align: center;
+    margin: 8px 0;
+}
+
+.update-info {
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.info-text {
+    font-size: 22px;
+    color: #666666;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.contact-section {
+    flex-direction: column;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.highlight-text {
+    font-size: 24px;
+    color: #1a73e8;
+    font-weight: bold;
+    text-align: center;
+    margin: 6px 0;
+}
+
+.thanks-section {
+    flex-direction: column;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.thanks-text {
+    font-size: 22px;
+    color: #666666;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.original-info {
+    flex-direction: column;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.original-label {
+    font-size: 26px;
+    color: #1a1a1a;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.title-image {
+    margin-top: 12px;
+}
+</style> 
