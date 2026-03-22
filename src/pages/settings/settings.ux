@@ -134,7 +134,7 @@ export default {
             { name: '淡紫', color: '#e6a0ff' },
             { name: '蓝色', color: '#6688cc' },
             { name: '灰色', color: '#aaaaaa' },
-            { name: '淡蓝', color: '#a0d2ff' }
+            { name: '白色', color: '#ffffff' }
         ]
     }, 
     

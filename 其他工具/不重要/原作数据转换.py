@@ -374,21 +374,32 @@ class GalgameScriptConverter:
             pass
         return ""
     
+    # ========== 修改点：内层说话人优先 ==========
     def extract_speaker_from_entry(self, entry):
+        """
+        从剧本条目中提取说话人。
+        优先级：
+        1. 内层说话人：entry[1][0][0]（如果存在且为非空字符串）
+        2. 外层说话人：entry[0]（如果存在且为非空字符串）
+        若均无，返回空字符串。
+        """
         try:
-            if len(entry) >= 1:
-                outer_speaker = entry[0]
-                if isinstance(outer_speaker, str) and outer_speaker.strip():
-                    return outer_speaker
+            # 优先从内层获取说话人
             if len(entry) >= 2 and isinstance(entry[1], list) and len(entry[1]) > 0:
                 inner = entry[1][0]
                 if isinstance(inner, list) and len(inner) >= 1:
                     inner_speaker = inner[0]
                     if isinstance(inner_speaker, str) and inner_speaker.strip():
                         return inner_speaker
+            # 若无内层，再尝试外层
+            if len(entry) >= 1:
+                outer_speaker = entry[0]
+                if isinstance(outer_speaker, str) and outer_speaker.strip():
+                    return outer_speaker
         except Exception:
             pass
         return ""
+    # ==========================================
     
     # ---------- 立绘处理核心 ----------
     def process_characters(self, entries):

@@ -99,6 +99,9 @@ class GalGameScriptEditor:
         self.last_selected_character = ""
         self.last_selected_background = ""
         
+        # ---------- 新增：CG扩展名缓存 ----------
+        self.cg_ext_cache = {}   # 缓存 {name_without_ext: full_name_with_ext}
+        
         # 创建界面
         self.create_menu()
         self.create_widgets()
@@ -112,6 +115,42 @@ class GalGameScriptEditor:
         # 启动自动保存线程
         self.start_auto_save()
         
+    # ---------- 新增：为CG名自动添加正确的后缀 ----------
+    def ensure_cg_suffix(self, cg_name):
+        """如果cg_name没有后缀，则根据evig_path中的实际文件添加正确的后缀（.png或.jpg）"""
+        if not cg_name:
+            return cg_name
+        # 如果已经有常见的图片后缀，直接返回
+        if cg_name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+            return cg_name
+        # 检查缓存
+        if cg_name in self.cg_ext_cache:
+            return self.cg_ext_cache[cg_name]
+        # 在evig_path中查找文件
+        if not self.evig_path or not os.path.exists(self.evig_path):
+            return cg_name
+        # 尝试添加 .png
+        png_path = os.path.join(self.evig_path, cg_name + '.png')
+        if os.path.exists(png_path):
+            result = cg_name + '.png'
+            self.cg_ext_cache[cg_name] = result
+            return result
+        # 尝试添加 .jpg
+        jpg_path = os.path.join(self.evig_path, cg_name + '.jpg')
+        if os.path.exists(jpg_path):
+            result = cg_name + '.jpg'
+            self.cg_ext_cache[cg_name] = result
+            return result
+        # 尝试其他扩展名
+        for ext in ['.jpeg', '.gif', '.bmp']:
+            test_path = os.path.join(self.evig_path, cg_name + ext)
+            if os.path.exists(test_path):
+                result = cg_name + ext
+                self.cg_ext_cache[cg_name] = result
+                return result
+        # 没找到，原样返回
+        return cg_name
+    
     def setup_dark_theme(self):
         """设置黑色主题"""
         self.root.configure(bg='#1e1e1e')
@@ -934,7 +973,7 @@ class GalGameScriptEditor:
     
     # ========== 通用资源选择器 ==========
     def _select_resource(self, resource_type, resource_path, extensions, memory_attr):
-        """通用的资源选择对话框，返回选中的资源名称（不带扩展名），如果取消则返回None"""
+        """通用的资源选择对话框，返回选中的资源名称（带扩展名），如果取消则返回None"""
         if not resource_path or not os.path.exists(resource_path):
             messagebox.showwarning("警告", f"{resource_type}文件夹不存在！")
             return None
@@ -999,14 +1038,16 @@ class GalGameScriptEditor:
             filter_text = filter_text.lower()
             for f in resource_files:
                 if not filter_text or filter_text in f.lower():
-                    name = os.path.splitext(f)[0]
+                    name = os.path.splitext(f)[0]  # 显示不带后缀
                     listbox.insert(tk.END, name)
             
             last_selected = getattr(self, memory_attr, '')
             if last_selected:
+                # 如果有记忆的完整文件名，提取不带后缀的部分进行匹配
+                last_base = os.path.splitext(last_selected)[0] if last_selected else ''
                 try:
                     for i in range(listbox.size()):
-                        if listbox.get(i) == last_selected:
+                        if listbox.get(i) == last_base:
                             listbox.selection_set(i)
                             listbox.see(i)
                             on_select(None)
@@ -1022,6 +1063,7 @@ class GalGameScriptEditor:
                 selected_name = listbox.get(selection[0])
                 preview_label.config(text=selected_name)
                 
+                # 找到对应的完整文件名（带后缀）
                 selected_file = None
                 for f in resource_files:
                     if os.path.splitext(f)[0] == selected_name:
@@ -1048,9 +1090,14 @@ class GalGameScriptEditor:
             nonlocal result
             selection = listbox.curselection()
             if selection:
-                result = listbox.get(selection[0])
+                selected_name = listbox.get(selection[0])
+                # 找到完整文件名（带后缀）
+                for f in resource_files:
+                    if os.path.splitext(f)[0] == selected_name:
+                        result = f
+                        break
                 if memory_attr:
-                    setattr(self, memory_attr, result)  # 记忆
+                    setattr(self, memory_attr, result)  # 记忆完整文件名
                 select_window.destroy()
             else:
                 messagebox.showinfo("提示", f"请先选择一个{resource_type}")
@@ -1101,7 +1148,7 @@ class GalGameScriptEditor:
                                          ['.png', '.jpg', '.jpeg', '.gif', '.bmp'], 
                                          'last_selected_cg')
         if selected:
-            self.cg_var.set(selected)
+            self.cg_var.set(selected)  # selected 已经是带后缀的完整文件名
             self.delayed_update_json()
     
     # ========== 缩放模板相关 ==========
@@ -1382,6 +1429,18 @@ class GalGameScriptEditor:
         self.total_label.config(text=f"总对话数: {self.total_dialogues}")
         self.progress_spinbox.config(to=max(1, self.total_dialogues))
         
+        # ---------- 新增：清理所有CG字段，确保为带后缀的完整文件名 ----------
+        converted_count = 0
+        for key, script in self.script_data.items():
+            if 'cg' in script and script['cg']:
+                original = script['cg']
+                normalized = self.ensure_cg_suffix(original)
+                if normalized != original:
+                    script['cg'] = normalized
+                    converted_count += 1
+        if converted_count > 0:
+            print(f"已转换 {converted_count} 个CG字段，添加了后缀")
+        
         print(f"脚本加载完成，共加载 {len(self.script_data)} 个对话，最大ID: {self.total_dialogues}")
         self.status_label.config(text="脚本加载完成", foreground="#6a9955")
     
@@ -1447,15 +1506,17 @@ class GalGameScriptEditor:
         char_name = self.char_var.get().strip()
         if not char_name:
             return
+        # 立绘文件名通常不带后缀，去掉可能的后缀
+        base_name = os.path.splitext(char_name)[0]
         
-        if char_name in self.character_map:
-            data = self.character_map[char_name]
+        if base_name in self.character_map:
+            data = self.character_map[base_name]
             self.person_var.set(data['person'])
             self.clothes_var.set(data['clothes'])
             self.pose_var.set(data['pose'])
         else:
-            if '_' in char_name:
-                person_clothes, pose = char_name.split('_', 1)
+            if '_' in base_name:
+                person_clothes, pose = base_name.split('_', 1)
                 
                 match = re.match(r'^([a-zA-Z]+)(\d+)$', person_clothes)
                 if match:
@@ -1469,7 +1530,7 @@ class GalGameScriptEditor:
                 self.clothes_var.set(clothes)
                 self.pose_var.set(pose)
             else:
-                self.person_var.set(char_name)
+                self.person_var.set(base_name)
                 self.clothes_var.set("")
                 self.pose_var.set("")
     
@@ -1519,6 +1580,7 @@ class GalGameScriptEditor:
                 
                 self.bg_var.set(script.get('b', ''))
                 self.char_var.set(script.get('c', ''))
+                # CG字段已经是带后缀的完整文件名，直接使用
                 self.cg_var.set(script.get('cg', ''))
                 self.speaker_var.set(script.get('s', ''))
                 
@@ -1584,8 +1646,10 @@ class GalGameScriptEditor:
             if char_value:
                 script['c'] = char_value
             
+            # 保存前确保CG字段带后缀
             cg_value = self.cg_var.get().strip()
             if cg_value:
+                cg_value = self.ensure_cg_suffix(cg_value)
                 script['cg'] = cg_value
             
             speaker_value = self.speaker_var.get().strip()
@@ -1638,7 +1702,7 @@ class GalGameScriptEditor:
             
             self.bg_var.set(script.get('b', ''))
             self.char_var.set(script.get('c', ''))
-            self.cg_var.set(script.get('cg', ''))
+            self.cg_var.set(script.get('cg', ''))  # 已经是带后缀的，直接使用
             self.speaker_var.set(script.get('s', ''))
             
             # 读取缩放值（模式）
@@ -1703,6 +1767,7 @@ class GalGameScriptEditor:
                 self.parse_character_name()
             
             if 'cg' in prev_script and prev_script['cg']:
+                # 直接使用，已经带后缀
                 self.cg_var.set(prev_script['cg'])
             
             if 'b' in prev_script and prev_script['b']:
@@ -1738,7 +1803,7 @@ class GalGameScriptEditor:
                     self.char_var.set(prev_script[field_name])
                     self.parse_character_name()
                 elif field_name == 'cg':
-                    self.cg_var.set(prev_script[field_name])
+                    self.cg_var.set(prev_script[field_name])  # 直接使用，已带后缀
                 elif field_name == 'b':
                     self.bg_var.set(prev_script[field_name])
                 
@@ -1768,11 +1833,15 @@ class GalGameScriptEditor:
                     bg_loaded = False
                     if bg_text and self.bcgi_path:
                         bg_path = None
-                        for ext in ['.jpg', '.jpeg', '.png', '.bmp', '.gif']:
-                            test_path = os.path.join(self.bcgi_path, f"{bg_text}{ext}")
-                            if os.path.exists(test_path):
-                                bg_path = test_path
-                                break
+                        # 背景可能没有后缀，尝试添加
+                        if os.path.splitext(bg_text)[1] == '':
+                            for ext in ['.jpg', '.jpeg', '.png', '.bmp', '.gif']:
+                                test_path = os.path.join(self.bcgi_path, f"{bg_text}{ext}")
+                                if os.path.exists(test_path):
+                                    bg_path = test_path
+                                    break
+                        else:
+                            bg_path = os.path.join(self.bcgi_path, bg_text)
                         
                         if bg_path and os.path.exists(bg_path):
                             try:
@@ -1786,11 +1855,15 @@ class GalGameScriptEditor:
                     char_loaded = False
                     if char_text and self.cimg_path:
                         char_path = None
-                        for ext in ['.png', '.jpg', '.jpeg']:
-                            test_path = os.path.join(self.cimg_path, f"{char_text}{ext}")
-                            if os.path.exists(test_path):
-                                char_path = test_path
-                                break
+                        # 立绘通常没有后缀
+                        if os.path.splitext(char_text)[1] == '':
+                            for ext in ['.png', '.jpg', '.jpeg']:
+                                test_path = os.path.join(self.cimg_path, f"{char_text}{ext}")
+                                if os.path.exists(test_path):
+                                    char_path = test_path
+                                    break
+                        else:
+                            char_path = os.path.join(self.cimg_path, char_text)
                         
                         if char_path and os.path.exists(char_path):
                             try:
@@ -1818,14 +1891,7 @@ class GalGameScriptEditor:
                     cg_loaded = False
                     if cg_text and self.evig_path:
                         cg_path = os.path.join(self.evig_path, cg_text)
-                        if not os.path.exists(cg_path):
-                            for ext in ['.png', '.jpg', '.jpeg', '.gif', '.bmp']:
-                                test_path = os.path.join(self.evig_path, f"{cg_text}{ext}")
-                                if os.path.exists(test_path):
-                                    cg_path = test_path
-                                    break
-                        
-                        if cg_path and os.path.exists(cg_path):
+                        if os.path.exists(cg_path):
                             try:
                                 cg_image = Image.open(cg_path).convert('RGBA')
                                 cg_image = cg_image.resize((336, 480), Image.Resampling.LANCZOS)
@@ -1901,7 +1967,9 @@ class GalGameScriptEditor:
             if key in self.script_data:
                 script = self.script_data[key]
                 if 'c' in script and script['c']:
-                    characters_set.add(script['c'])
+                    # 立绘名可能带后缀，只取基本名
+                    base = os.path.splitext(script['c'])[0]
+                    characters_set.add(base)
         
         self.nearby_characters = sorted(list(characters_set))
         self.filter_quick_commands()

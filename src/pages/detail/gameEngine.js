@@ -224,7 +224,7 @@ export default class GameEngine {
     }
   }
 
-  // 根据进度ID获取脚本（主入口）
+  // 根据进度ID获取脚本（主入口）- 移除 x, y, z 字段
   async getScript(progressId) {
     const id = progressId.toString();
     
@@ -243,7 +243,7 @@ export default class GameEngine {
       return this.getFallbackScript(progressId);
     }
     
-    // 格式化输出（最小化处理）
+    // 格式化输出（只返回页面需要的字段）
     return {
       id: progressId,
       background: script.b ? `/common/bcgi/${script.b}.jpg` : "",
@@ -251,9 +251,7 @@ export default class GameEngine {
       cg: script.cg ? `/common/evig/${script.cg}` : "",
       speaker: script.s || "",
       text: script.t || "",
-      x: script.x || 0,
-      y: script.y || 0,
-      z: script.z || 1,
+      z: script.z || 0,
       choose: !!script.co,
       choose1: script.c1 || "",
       choose2: script.c2 || "",
@@ -275,9 +273,7 @@ export default class GameEngine {
       cg: "",
       speaker: "系统",
       text: progressId > 0 ? `加载页面 ${progressId}` : "加载中...",
-      x: 0,
-      y: 0,
-      z: 1,
+      z: 0,
       choose: false,
       choose1: "",
       choose2: "",

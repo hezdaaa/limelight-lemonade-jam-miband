@@ -8,10 +8,10 @@ from tkinter import ttk, filedialog, messagebox, scrolledtext
 import time
 from collections import defaultdict
 
-class BatchReplaceS:
+class BatchReplaceB:
     def __init__(self, root):
         self.root = root
-        self.root.title("批量替换说话人(s字段)工具 - 高性能版")
+        self.root.title("批量替换背景(b字段)工具 - 高性能版")
         self.root.geometry("800x700")
         self.root.configure(bg='#1e1e1e')
         
@@ -19,14 +19,11 @@ class BatchReplaceS:
         
         # 数据
         self.script_path = ""
-        self.chunk_cache = {}  # 缓存所有chunk数据 {chunk_num: {id: data}}
-        self.chunk_files = []  # 所有chunk文件列表
+        self.chunk_cache = {}
+        self.chunk_files = []
         self.total_dialogues = 0
         
-        # 块大小
         self.chunk_size = 500
-        
-        # 映射表
         self.mapping = {}
         
         self.create_widgets()
@@ -74,7 +71,6 @@ class BatchReplaceS:
                        troughcolor='#1e1e1e')
     
     def create_widgets(self):
-        # 控制面板
         control_frame = ttk.LabelFrame(self.root, text="项目设置", padding="10")
         control_frame.pack(fill="x", padx=10, pady=5)
         
@@ -94,18 +90,18 @@ class BatchReplaceS:
         self.dialogue_count_label = ttk.Label(control_frame, text="总对话数: 0")
         self.dialogue_count_label.pack(anchor="w", pady=2)
         
-        # 映射输入区域
-        map_frame = ttk.LabelFrame(self.root, text="替换映射", padding="10")
+        map_frame = ttk.LabelFrame(self.root, text="替换映射 (背景值)", padding="10")
         map_frame.pack(fill="both", expand=True, padx=10, pady=5)
         
         info_frame = ttk.Frame(map_frame)
         info_frame.pack(fill="x", pady=(0,5))
-        ttk.Label(info_frame, text="说明: null=删除，[CHAPTER?-?]=章节标记(不加括号)，其他自动加【】", foreground="#858585").pack(anchor="w")
+        ttk.Label(info_frame, text="说明: null=删除背景字段，其他直接填入字符串", foreground="#858585").pack(anchor="w")
         
         btn_frame = ttk.Frame(map_frame)
         btn_frame.pack(fill="x", pady=(0,5))
         ttk.Button(btn_frame, text="从文件导入", command=self.import_mapping_file).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="清除映射", command=self.clear_mapping).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="解析JSON映射", command=self.parse_json_mapping).pack(side="left", padx=5)  # 新增按钮
         
         self.map_text = scrolledtext.ScrolledText(
             map_frame,
@@ -118,22 +114,19 @@ class BatchReplaceS:
             relief='flat'
         )
         self.map_text.pack(fill="both", expand=True)
-        self.map_text.insert(tk.END, "# 每行格式: 对话ID: 新值\n# 示例:\n52: null\n53: 声音\n54: 雪鹰\n55: [CHAPTER1-1]\n")
+        self.map_text.insert(tk.END, "# 每行格式: 对话ID: 新背景值\n# 示例:\n52: null\n53: 学園_正面c_夏\n54: 教室_冬\n55: 海边_夜晚\n")
         
-        # 操作按钮
         action_frame = ttk.Frame(self.root)
         action_frame.pack(fill="x", padx=10, pady=5)
         ttk.Button(action_frame, text="开始替换 (高性能)", command=self.start_replace, width=15).pack(side="left", padx=5)
         ttk.Button(action_frame, text="仅预览", command=self.preview_replace, width=10).pack(side="left", padx=5)
         ttk.Button(action_frame, text="清除缓存", command=self.clear_cache, width=10).pack(side="left", padx=5)
         
-        # 进度条
         self.progress_var = tk.IntVar()
         self.progress_bar = ttk.Progressbar(action_frame, variable=self.progress_var, 
                                             maximum=100, length=200, mode='determinate')
         self.progress_bar.pack(side="right", padx=10)
         
-        # 结果输出区域
         log_frame = ttk.LabelFrame(self.root, text="操作日志", padding="10")
         log_frame.pack(fill="both", expand=True, padx=10, pady=5)
         
@@ -150,7 +143,6 @@ class BatchReplaceS:
         self.log_text.pack(fill="both", expand=True)
     
     def log(self, msg, level="INFO"):
-        import time
         timestamp = time.strftime("%H:%M:%S")
         self.log_text.insert(tk.END, f"[{timestamp}] {msg}\n")
         self.log_text.see(tk.END)
@@ -177,7 +169,6 @@ class BatchReplaceS:
         self.load_all_scripts_fast()
     
     def load_all_scripts_fast(self):
-        """快速加载所有脚本到内存缓存"""
         if not self.script_path or not os.path.exists(self.script_path):
             self.log("错误: 脚本文件夹不存在")
             return
@@ -186,7 +177,6 @@ class BatchReplaceS:
         self.chunk_files = []
         
         try:
-            # 获取所有scriptData文件
             files = [f for f in os.listdir(self.script_path) 
                     if f.lower().startswith("scriptdata") and f.lower().endswith(".txt")]
             
@@ -202,11 +192,8 @@ class BatchReplaceS:
             
             for i, filename in enumerate(files):
                 file_path = os.path.join(self.script_path, filename)
-                
-                # 提取块号
                 chunk_num = extract_number(filename)
                 
-                # 快速加载JSON
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()
@@ -214,7 +201,6 @@ class BatchReplaceS:
                         self.chunk_cache[chunk_num] = chunk_data
                         total_dialogues += len(chunk_data)
                         
-                        # 更新进度
                         progress = (i + 1) * 100 // len(files)
                         self.progress_var.set(progress)
                         self.root.update()
@@ -246,15 +232,87 @@ class BatchReplaceS:
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
+            # 尝试解析为JSON
+            try:
+                json_obj = json.loads(content)
+                if isinstance(json_obj, dict):
+                    # 解析为 ID -> b 映射
+                    mapping = self.extract_b_from_json(json_obj)
+                    if mapping:
+                        self.map_text.delete(1.0, tk.END)
+                        for idx, (did, new_b) in enumerate(sorted(mapping.items())):
+                            if new_b is None:
+                                self.map_text.insert(tk.END, f"{did}: null\n")
+                            else:
+                                self.map_text.insert(tk.END, f"{did}: {new_b}\n")
+                        self.log(f"已从JSON导入 {len(mapping)} 条映射")
+                        return
+            except json.JSONDecodeError:
+                pass  # 不是JSON，当作普通文本处理
+            
+            # 普通文本导入
             self.map_text.delete(1.0, tk.END)
             self.map_text.insert(1.0, content)
             self.log(f"已导入映射: {file_path}")
         except Exception as e:
             messagebox.showerror("错误", f"读取失败: {e}")
     
+    def extract_b_from_json(self, json_obj):
+        """从JSON对象中提取所有包含'b'字段的条目，返回 {id: b值} 字典，b值为None表示删除"""
+        mapping = {}
+        for id_str, data in json_obj.items():
+            if not isinstance(data, dict):
+                continue
+            if 'b' in data:
+                try:
+                    did = int(id_str)
+                except ValueError:
+                    self.log(f"警告: JSON键 '{id_str}' 不是有效数字，跳过")
+                    continue
+                b_val = data['b']
+                if b_val is None:
+                    mapping[did] = None
+                else:
+                    # 去除可能的外层引号
+                    if isinstance(b_val, str):
+                        if (b_val.startswith('"') and b_val.endswith('"')) or (b_val.startswith("'") and b_val.endswith("'")):
+                            b_val = b_val[1:-1]
+                    mapping[did] = b_val
+        return mapping
+    
+    def parse_json_mapping(self):
+        """将文本框中的内容作为JSON解析，提取ID->b映射并替换文本框内容"""
+        content = self.map_text.get(1.0, tk.END).strip()
+        if not content:
+            messagebox.showinfo("提示", "文本框为空，无法解析")
+            return
+        
+        try:
+            json_obj = json.loads(content)
+            if not isinstance(json_obj, dict):
+                messagebox.showerror("错误", "JSON必须是一个对象")
+                return
+            
+            mapping = self.extract_b_from_json(json_obj)
+            if not mapping:
+                messagebox.showinfo("提示", "JSON中未找到包含'b'字段的条目")
+                return
+            
+            # 清空并重新填充
+            self.map_text.delete(1.0, tk.END)
+            for did in sorted(mapping.keys()):
+                new_b = mapping[did]
+                if new_b is None:
+                    self.map_text.insert(tk.END, f"{did}: null\n")
+                else:
+                    self.map_text.insert(tk.END, f"{did}: {new_b}\n")
+            self.log(f"解析JSON成功，得到 {len(mapping)} 条映射")
+        except json.JSONDecodeError as e:
+            messagebox.showerror("JSON解析错误", f"无法解析为JSON:\n{e}")
+    
     def clear_mapping(self):
         self.map_text.delete(1.0, tk.END)
-        self.map_text.insert(tk.END, "# 每行格式: 对话ID: 新值\n# 示例:\n52: null\n53: 声音\n54: 雪鹰\n55: [CHAPTER1-1]\n")
+        self.map_text.insert(tk.END, "# 每行格式: 对话ID: 新背景值\n# 示例:\n52: null\n53: 学園_正面c_夏\n54: 教室_冬\n55: 海边_夜晚\n")
         self.log("映射已清空")
     
     def clear_cache(self):
@@ -262,12 +320,8 @@ class BatchReplaceS:
         self.log("缓存已清除")
         self.status_label.config(text="缓存已清除", foreground="#ffcc00")
     
-    def is_chapter_marker(self, value):
-        pattern = r'^\[CHAPTER\d+-\d+\]$'
-        return bool(re.match(pattern, value, re.IGNORECASE))
-    
     def parse_mapping(self):
-        """快速解析映射"""
+        """解析文本框内容为 {id: new_b} 字典"""
         text = self.map_text.get(1.0, tk.END)
         mapping = {}
         lines = text.splitlines()
@@ -292,29 +346,21 @@ class BatchReplaceS:
                 self.log(f"警告: 无效ID '{id_str}'")
                 continue
             
-            # 处理值
+            # 处理值：null 表示删除背景，否则直接使用字符串
             if value_str.lower() == 'null':
                 value = None
             else:
-                # 去掉引号
+                # 去掉可能的外层引号
                 if (value_str.startswith('"') and value_str.endswith('"')) or \
                    (value_str.startswith("'") and value_str.endswith("'")):
                     value_str = value_str[1:-1]
-                
-                # 判断类型
-                if self.is_chapter_marker(value_str):
-                    value = value_str
-                elif value_str.startswith('【') and value_str.endswith('】'):
-                    value = value_str
-                else:
-                    value = f"【{value_str}】"
+                value = value_str
             
             mapping[dialogue_id] = value
         
         return mapping
     
     def preview_replace(self):
-        """快速预览"""
         if not self.chunk_cache:
             messagebox.showwarning("警告", "请先加载脚本数据")
             return
@@ -324,11 +370,10 @@ class BatchReplaceS:
             messagebox.showinfo("提示", "没有有效的映射条目")
             return
         
-        # 快速统计
         changes = []
         found_count = 0
         
-        for dialogue_id, new_s in self.mapping.items():
+        for dialogue_id, new_b in self.mapping.items():
             key = str(dialogue_id)
             chunk_num = (dialogue_id - 1) // self.chunk_size + 1
             
@@ -336,13 +381,12 @@ class BatchReplaceS:
                 chunk_data = self.chunk_cache[chunk_num]
                 if key in chunk_data:
                     found_count += 1
-                    old_s = chunk_data[key].get('s', None)
-                    if old_s != new_s:
-                        changes.append((dialogue_id, old_s, new_s))
+                    old_b = chunk_data[key].get('b', None)
+                    if old_b != new_b:
+                        changes.append((dialogue_id, old_b, new_b))
         
-        # 显示预览窗口
         preview_win = tk.Toplevel(self.root)
-        preview_win.title("替换预览")
+        preview_win.title("背景替换预览")
         preview_win.geometry("600x500")
         preview_win.configure(bg='#1e1e1e')
         
@@ -361,11 +405,11 @@ class BatchReplaceS:
         preview_text.insert(tk.END, f"找到对话: {found_count}\n")
         preview_text.insert(tk.END, f"将修改: {len(changes)} 条对话\n\n")
         
-        for dialogue_id, old_s, new_s in changes[:100]:  # 最多显示100条
-            if new_s is None:
-                preview_text.insert(tk.END, f"ID {dialogue_id}: 删除 '{old_s}'\n")
+        for dialogue_id, old_b, new_b in changes[:100]:
+            if new_b is None:
+                preview_text.insert(tk.END, f"ID {dialogue_id}: 删除背景 '{old_b}'\n")
             else:
-                preview_text.insert(tk.END, f"ID {dialogue_id}: '{old_s}' -> '{new_s}'\n")
+                preview_text.insert(tk.END, f"ID {dialogue_id}: '{old_b}' -> '{new_b}'\n")
         
         if len(changes) > 100:
             preview_text.insert(tk.END, f"\n... 还有 {len(changes)-100} 条未显示")
@@ -373,7 +417,6 @@ class BatchReplaceS:
         ttk.Button(preview_win, text="关闭", command=preview_win.destroy).pack(pady=10)
     
     def start_replace(self):
-        """高性能批量替换"""
         if not self.chunk_cache:
             messagebox.showwarning("警告", "请先加载脚本数据")
             return
@@ -383,39 +426,33 @@ class BatchReplaceS:
             messagebox.showinfo("提示", "没有有效的映射条目")
             return
         
-        if not messagebox.askyesno("确认", f"将修改 {len(self.mapping)} 条对话，是否继续？\n建议先预览。"):
+        if not messagebox.askyesno("确认", f"将修改 {len(self.mapping)} 条对话的背景，是否继续？\n建议先预览。"):
             return
         
-        # 备份
         if messagebox.askyesno("备份", "是否在修改前备份所有文件？"):
             self.backup_files()
         
-        # 执行替换（直接修改内存缓存）
-        self.log("开始执行替换...")
+        self.log("开始执行背景替换...")
         changes_count = 0
-        affected_chunks = set()
-        
-        # 按块分组，提高效率
         chunk_updates = defaultdict(list)
         
-        for dialogue_id, new_s in self.mapping.items():
+        for dialogue_id, new_b in self.mapping.items():
             key = str(dialogue_id)
             chunk_num = (dialogue_id - 1) // self.chunk_size + 1
             
             if chunk_num in self.chunk_cache:
                 chunk_data = self.chunk_cache[chunk_num]
                 if key in chunk_data:
-                    old_s = chunk_data[key].get('s', None)
+                    old_b = chunk_data[key].get('b', None)
                     
-                    # 只有值不同才修改
-                    if old_s != new_s:
-                        if new_s is None:
-                            if 's' in chunk_data[key]:
-                                del chunk_data[key]['s']
+                    if old_b != new_b:
+                        if new_b is None:
+                            if 'b' in chunk_data[key]:
+                                del chunk_data[key]['b']
                                 changes_count += 1
                                 chunk_updates[chunk_num].append(dialogue_id)
                         else:
-                            chunk_data[key]['s'] = new_s
+                            chunk_data[key]['b'] = new_b
                             changes_count += 1
                             chunk_updates[chunk_num].append(dialogue_id)
         
@@ -423,8 +460,7 @@ class BatchReplaceS:
             self.log("没有需要修改的内容")
             return
         
-        # 保存修改的块
-        self.log(f"修改了 {changes_count} 条对话，影响 {len(chunk_updates)} 个块文件")
+        self.log(f"修改了 {changes_count} 条对话的背景，影响 {len(chunk_updates)} 个块文件")
         self.log("开始保存文件...")
         
         saved_count = 0
@@ -432,11 +468,8 @@ class BatchReplaceS:
         
         for i, (chunk_num, updated_ids) in enumerate(chunk_updates.items()):
             chunk_data = self.chunk_cache[chunk_num]
-            
-            # 保存到文件
             chunk_file = os.path.join(self.script_path, f"scriptData{chunk_num}.txt")
             try:
-                # 排序后保存
                 sorted_data = {}
                 for id_key in sorted(chunk_data.keys(), key=lambda x: int(x)):
                     sorted_data[id_key] = chunk_data[id_key]
@@ -445,8 +478,6 @@ class BatchReplaceS:
                     json.dump(sorted_data, f, ensure_ascii=False, indent=2)
                 
                 saved_count += 1
-                
-                # 更新进度
                 progress = (i + 1) * 100 // total_chunks
                 self.progress_var.set(progress)
                 self.root.update()
@@ -456,15 +487,13 @@ class BatchReplaceS:
             except Exception as e:
                 self.log(f"保存块 {chunk_num} 失败: {e}")
         
-        self.log(f"替换完成！共修改 {changes_count} 条对话，保存 {saved_count}/{total_chunks} 个文件")
+        self.log(f"背景替换完成！共修改 {changes_count} 条对话，保存 {saved_count}/{total_chunks} 个文件")
         self.status_label.config(text="替换完成", foreground="#6a9955")
         self.progress_var.set(0)
         
-        # 显示统计
-        messagebox.showinfo("完成", f"替换完成！\n修改对话: {changes_count} 条\n保存文件: {saved_count} 个")
+        messagebox.showinfo("完成", f"背景替换完成！\n修改对话: {changes_count} 条\n保存文件: {saved_count} 个")
     
     def backup_files(self):
-        """备份所有脚本文件"""
         if not self.script_path:
             return
         
@@ -496,7 +525,7 @@ def main():
         sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
     
     root = tk.Tk()
-    app = BatchReplaceS(root)
+    app = BatchReplaceB(root)
     root.mainloop()
 
 if __name__ == "__main__":
