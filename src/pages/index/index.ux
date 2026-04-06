@@ -1,6 +1,6 @@
 <template>
 
-  <div class="page" onswipe="loadProccess">
+  <div class="page" onswipe="loadpageProccess">
 
     <image class="background" src="{{bg}}" onclick="hidui" if="{{uishow}}"></image>
     <image class="logo" src="deactivelogo.png" if="{{uishow}}"></image>
@@ -72,6 +72,8 @@ export default {
     '/common/title_bg8.jpg',
   ],
   bg:'/common/title_bg0.jpg',
+  // 避免重复执行初次检查的标志
+  firstLaunchChecked: false,
 },
   back(){
     return;
@@ -84,6 +86,9 @@ export default {
   },
   
   async onShow(){
+    // 检查是否为初次启动，并自动跳转 about 页面（仅执行一次）
+    this.checkFirstLaunch();
+
     // 1. 读取保存的背景索引
     storage.get({
       key: 'bg',
@@ -279,14 +284,53 @@ export default {
       uri:'pages/detail'
     })
   },
-
   loadProccess(){
-    if(this.loadShow===false){
       this.loadShow = true;
-    }else{
+  },
+  loadpageProccess(){
+    if(this.loadShow===true){
       this.loadShow = false;
     }
   },
+
+  // 新增方法：检查是否初次启动，若是则跳转 about 页面
+  checkFirstLaunch() {
+    // 防止重复调用
+    if (this.firstLaunchChecked) return;
+    this.firstLaunchChecked = true;
+
+    storage.get({
+      key: 'hasLaunchedBefore',
+      success: (data) => {
+        // 如果没有标记过，则为初次启动
+        if (data !== 'true') {
+          // 设置已启动标记
+          storage.set({
+            key: 'hasLaunchedBefore',
+            value: 'true',
+            success: () => {},
+            fail: () => {}
+          });
+          // 跳转到 about 页面
+          router.push({
+            uri: 'pages/about'
+          });
+        }
+      },
+      fail: () => {
+        // 读取失败时也视为初次启动，进行标记并跳转
+        storage.set({
+          key: 'hasLaunchedBefore',
+          value: 'true',
+          success: () => {},
+          fail: () => {}
+        });
+        router.push({
+          uri: 'pages/about'
+        });
+      }
+    });
+  }
 };
 </script>
 

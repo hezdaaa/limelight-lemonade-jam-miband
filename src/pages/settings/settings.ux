@@ -13,7 +13,7 @@
         <!-- 文本播放速度设置 -->
         <div class="setting-section">
             <text class="section-title">文本播放速度</text> 
-            <slider class="slider" min="5" max="80" step="5" value="{{textSpeed}}" @change="updateTextSpeed"/> 
+            <slider class="slider" min="5" max="40" step="5" value="{{textSpeed}}" @change="updateTextSpeed"/> 
             <div class="slider-labels">
                 <text class="label">快</text>
                 <text class="current-value">当前速度:{{textSpeed}}ms/字</text> 
@@ -21,7 +21,7 @@
             </div>
 
             <text class="section-title">字体大小</text> 
-            <slider class="slider" min="10" max="40" step="2" value="{{fontSize}}" @change="updateFontSize"/> 
+            <slider class="slider" min="16" max="40" step="2" value="{{fontSize}}" @change="updateFontSize"/> 
             <div class="slider-labels">
                 <text class="label">小</text>
                 <text class="current-value">当前字体大小:{{fontSize}}px</text> 
@@ -29,7 +29,7 @@
             </div>
             
             <text class="section-title">自动播放速度</text> 
-            <slider class="slider" min="500" max="5000" step="100" value="{{autoPlayDelay}}" @change="updateAutoSpeed"/> 
+            <slider class="slider" min="500" max="3000" step="100" value="{{autoPlayDelay}}" @change="updateAutoSpeed"/> 
             <div class="slider-labels">
                 <text class="label">快</text>
                 <text class="current-value">当前速度:{{autoPlayDelay}}ms</text> 

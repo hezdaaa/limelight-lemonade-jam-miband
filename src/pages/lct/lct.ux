@@ -8,6 +8,10 @@
                         <text class="mid1">共通线</text>
                     </div>
                     <div class="content">
+                        <text class="mid" @click="loadStart(8713)">[op]</text>
+                    </div>
+                        <text class="mid2">↓</text>
+                    <div class="content">
                         <text class="mid" @click="loadStart(1)">[PROLOGUE_1]</text>
                     </div>
                         <text class="mid2">↓</text>

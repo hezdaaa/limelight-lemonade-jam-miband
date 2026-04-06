@@ -116,6 +116,41 @@ class GalGameScriptEditor:
         self.start_auto_save()
         
     # ---------- 新增：为CG名自动添加正确的后缀 ----------
+    def fix_background_suffixes(self):
+
+        """一键移除所有背景字段中的文件扩展名（如 .jpg、.png）"""
+        if not self.script_data:
+            messagebox.showwarning("警告", "没有加载任何对话数据！")
+            return
+
+        # 定义常见的图片扩展名列表
+        extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif']
+
+        fixed_count = 0
+        for key, script in self.script_data.items():
+            if 'b' in script and script['b']:
+                original = script['b']
+                # 去除扩展名
+                base = os.path.splitext(original)[0]
+                if base != original:
+                    script['b'] = base
+                    fixed_count += 1
+
+        if fixed_count == 0:
+            messagebox.showinfo("修复完成", "没有发现需要修复的背景字段。")
+            return
+
+        # 刷新当前显示
+        self.load_dialogue()
+        self.mark_unsaved_changes()
+
+        # 询问是否立即保存
+        if messagebox.askyesno("保存", f"已修复 {fixed_count} 个背景字段。\n是否立即保存所有更改？"):
+            self.save_all_changes()
+            self.status_label.config(text=f"已修复并保存 {fixed_count} 个背景后缀", foreground="#6a9955")
+        else:
+            self.status_label.config(text=f"已修复 {fixed_count} 个背景后缀（未保存）", foreground="#ffcc00")
+            
     def ensure_cg_suffix(self, cg_name):
         """如果cg_name没有后缀，则根据evig_path中的实际文件添加正确的后缀（.png或.jpg）"""
         if not cg_name:
@@ -267,6 +302,7 @@ class GalGameScriptEditor:
         menubar.add_cascade(label="工具", menu=tool_menu)
         tool_menu.add_command(label="一键优化储存", command=self.optimize_storage)
         tool_menu.add_command(label="批量重命名", command=self.batch_rename)
+        tool_menu.add_command(label="修复背景后缀", command=self.fix_background_suffixes)
         tool_menu.add_command(label="导出脚本", command=self.export_script)
         tool_menu.add_command(label="导入脚本", command=self.import_script)
         tool_menu.add_separator()
@@ -1124,21 +1160,24 @@ class GalGameScriptEditor:
     
     # ========== 资源选择方法（使用通用选择器） ==========
     def choose_background(self):
-        """选择背景"""
+        """选择背景（不带后缀）"""
         selected = self._select_resource("背景", self.bcgi_path, 
-                                         ['.jpg', '.jpeg', '.png', '.bmp', '.gif'], 
-                                         'last_selected_background')
+                                        ['.jpg', '.jpeg', '.png', '.bmp', '.gif'], 
+                                        'last_selected_background')
         if selected:
-            self.bg_var.set(selected)
+            # 去掉扩展名
+            base_name = os.path.splitext(selected)[0]
+            self.bg_var.set(base_name)
             self.delayed_update_json()
-    
     def choose_character(self):
-        """选择立绘"""
+        """选择立绘（不带后缀）"""
         selected = self._select_resource("立绘", self.cimg_path, 
-                                         ['.png', '.jpg', '.jpeg'], 
-                                         'last_selected_character')
+                                        ['.png', '.jpg', '.jpeg'], 
+                                        'last_selected_character')
         if selected:
-            self.char_var.set(selected)
+            # 去掉扩展名
+            base_name = os.path.splitext(selected)[0]
+            self.char_var.set(base_name)
             self.parse_character_name()
             self.delayed_update_json()
     
@@ -1358,11 +1397,11 @@ class GalGameScriptEditor:
     def load_script_data(self):
         """加载所有脚本数据"""
         self.script_data = {}
-        
+
         if not os.path.exists(self.script_path):
             messagebox.showerror("错误", f"脚本文件夹不存在: {self.script_path}")
             return
-        
+
         script_files = []
         try:
             for f in os.listdir(self.script_path):
@@ -1371,28 +1410,28 @@ class GalGameScriptEditor:
         except Exception as e:
             print(f"获取文件列表失败: {e}")
             script_files = []
-        
+
         if not script_files:
             messagebox.showwarning("警告", "没有找到脚本文件！")
             self.total_dialogues = 0
             self.total_label.config(text="总对话数: 0")
             return
-        
+
         def extract_number(filename):
             match = re.search(r'(\d+)', filename)
             return int(match.group(1)) if match else 0
-        
+
         script_files.sort(key=extract_number)
-        
+
         total_loaded = 0
-        
+
         for script_file in script_files:
             try:
                 file_path = os.path.join(self.script_path, script_file)
-                
+
                 encodings = ['utf-8', 'utf-8-sig', 'gbk', 'gb2312', 'gb18030']
                 chunk_data = None
-                
+
                 for encoding in encodings:
                     try:
                         with open(file_path, 'r', encoding=encoding) as f:
@@ -1404,15 +1443,15 @@ class GalGameScriptEditor:
                         continue
                     except json.JSONDecodeError:
                         continue
-                
+
                 if chunk_data:
                     for k, v in chunk_data.items():
                         self.script_data[str(k)] = v
                     total_loaded += len(chunk_data)
-                    
+
             except Exception as e:
                 print(f"加载脚本文件 {script_file} 失败: {e}")
-        
+
         self.sorted_ids = []
         for key in self.script_data.keys():
             try:
@@ -1420,16 +1459,16 @@ class GalGameScriptEditor:
             except:
                 pass
         self.sorted_ids.sort()
-        
+
         if self.sorted_ids:
             self.total_dialogues = max(self.sorted_ids)
         else:
             self.total_dialogues = 0
-        
+
         self.total_label.config(text=f"总对话数: {self.total_dialogues}")
         self.progress_spinbox.config(to=max(1, self.total_dialogues))
-        
-        # ---------- 新增：清理所有CG字段，确保为带后缀的完整文件名 ----------
+
+        # ---------- 清理CG字段，确保带后缀 ----------
         converted_count = 0
         for key, script in self.script_data.items():
             if 'cg' in script and script['cg']:
@@ -1440,10 +1479,22 @@ class GalGameScriptEditor:
                     converted_count += 1
         if converted_count > 0:
             print(f"已转换 {converted_count} 个CG字段，添加了后缀")
-        
+
+        # ---------- 清理立绘字段，确保不带后缀 ----------
+        char_converted = 0
+        for key, script in self.script_data.items():
+            if 'c' in script and script['c']:
+                original = script['c']
+                base = os.path.splitext(original)[0]
+                if base != original:
+                    script['c'] = base
+                    char_converted += 1
+        if char_converted > 0:
+            print(f"已清理 {char_converted} 个立绘字段，移除了后缀")
+
         print(f"脚本加载完成，共加载 {len(self.script_data)} 个对话，最大ID: {self.total_dialogues}")
         self.status_label.config(text="脚本加载完成", foreground="#6a9955")
-    
+        
     def load_resources(self):
         """加载资源列表"""
         self.analyze_character_names()
@@ -1567,23 +1618,24 @@ class GalGameScriptEditor:
         """加载指定对话"""
         try:
             self.is_loading_dialogue = True
-            
+
             progress_id = self.progress_var.get()
             progress_key = str(progress_id)
-            
+
             if progress_key in self.script_data:
                 script = self.script_data[progress_key]
-                
+
                 self.source_text.delete(1.0, tk.END)
                 formatted = json.dumps(script, ensure_ascii=False, indent=2)
                 self.source_text.insert(1.0, formatted)
-                
-                self.bg_var.set(script.get('b', ''))
-                self.char_var.set(script.get('c', ''))
+
+                self.bg_var.set(os.path.splitext(script.get('b', ''))[0])
+                # 立绘名不带后缀，直接去掉扩展名
+                self.char_var.set(os.path.splitext(script.get('c', ''))[0])
                 # CG字段已经是带后缀的完整文件名，直接使用
                 self.cg_var.set(script.get('cg', ''))
                 self.speaker_var.set(script.get('s', ''))
-                
+
                 # 读取缩放值（模式）
                 z_value = script.get('z', None)
                 if z_value is None:
@@ -1596,33 +1648,33 @@ class GalGameScriptEditor:
                     self.z_var.set(2)
                 else:
                     self.z_var.set(0)
-                
+
                 self.text_text.delete(1.0, tk.END)
                 text_content = script.get('t', '')
                 self.text_text.insert(1.0, text_content)
-                
+
                 self.parse_character_name()
                 self.current_progress = progress_id
-                
+
                 self.template_name_var.set("")
                 self.on_zoom_changed()
                 self.update_realtime_preview()
                 self.update_nearby_characters()
                 self.update_dialogue_list_selection()
-                
+
             else:
                 self.source_text.delete(1.0, tk.END)
                 self.source_text.insert(1.0, "{}")
                 self.clear_fields()
                 self.template_name_var.set("")
-                
+
         except Exception as e:
             messagebox.showerror("错误", f"加载对话失败: {str(e)}")
             import traceback
             traceback.print_exc()
         finally:
             self.is_loading_dialogue = False
-    
+
     def delayed_update_json(self):
         if not self.is_loading_dialogue:
             self.apply_to_json()
@@ -1755,24 +1807,25 @@ class GalGameScriptEditor:
         if self.current_progress <= 1:
             messagebox.showinfo("提示", "已经是第一页，没有上一页可以复制")
             return
-        
+
         prev_key = str(self.current_progress - 1)
         if prev_key in self.script_data:
             prev_script = self.script_data[prev_key]
-            
+
             self.save_state("复制上一页前")
-            
+
             if 'c' in prev_script and prev_script['c']:
-                self.char_var.set(prev_script['c'])
+                # 去掉扩展名
+                self.char_var.set(os.path.splitext(prev_script['c'])[0])
                 self.parse_character_name()
-            
+
             if 'cg' in prev_script and prev_script['cg']:
                 # 直接使用，已经带后缀
                 self.cg_var.set(prev_script['cg'])
-            
+
             if 'b' in prev_script and prev_script['b']:
                 self.bg_var.set(prev_script['b'])
-            
+
             # 复制缩放
             z_value = prev_script.get('z')
             if z_value is None:
@@ -1783,30 +1836,32 @@ class GalGameScriptEditor:
                 self.z_var.set(1)
             elif abs(z_value - 1.2) < 0.1:
                 self.z_var.set(2)
-            
+
             self.apply_to_json()
             self.status_label.config(text="已复制上一页的立绘和CG设置", foreground="#6a9955")
         else:
             messagebox.showwarning("警告", f"第{self.current_progress-1}页不存在")
-    
+        
     def _copy_previous_field(self, field_name):
         if self.current_progress <= 1:
             messagebox.showinfo("提示", "已经是第一页，没有上一页可以复制")
             return
-        
+
         prev_key = str(self.current_progress - 1)
         if prev_key in self.script_data:
             prev_script = self.script_data[prev_key]
-            
+
             if field_name in prev_script and prev_script[field_name]:
                 if field_name == 'c':
-                    self.char_var.set(prev_script[field_name])
+                    # 去掉扩展名
+                    base = os.path.splitext(prev_script[field_name])[0]
+                    self.char_var.set(base)
                     self.parse_character_name()
                 elif field_name == 'cg':
                     self.cg_var.set(prev_script[field_name])  # 直接使用，已带后缀
                 elif field_name == 'b':
                     self.bg_var.set(prev_script[field_name])
-                
+
                 self.apply_to_json()
                 self.status_label.config(text=f"已复制上一页的{field_name}设置", foreground="#6a9955")
             else:

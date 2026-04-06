@@ -1,152 +1,206 @@
 <template> 
     <div class="page"> 
-    <img class="bcg"src="/common/bcgi/空_夕_夏.jpg"></img> 
-    <img class="bt"src="/common/bt.png"></img> 
-    <img class="hd"src="/common/hd.png"></img> 
-    <scroll id="mainScroll" class="scroll" scroll-y="{{true}}">
+      <img class="bcg" src="/common/bcgi/空_夕_夏.jpg"></img> 
+      <img class="bt" src="/common/bt.png"></img> 
+      <img class="hd" src="/common/hd.png"></img> 
+      
+  
+      <scroll id="mainScroll" class="scroll" scroll-y="{{true}}">
         <div class="header">
-            <text class="title">关于</text> 
+          <text class="title">关于</text> 
         </div>
         <div class="content">
-            
+          <text class="app-name">lamelight lemonade jam</text> 
+          <text class="subtitle">小米手环移植版</text>  
+          <text class="author">@hezdaaa</text> 
+          
+          <text class="section-title" if="{{isFirstVisit}}" >初次游玩前请仔细阅读以下内容！阅读完毕后即可开始游戏！</text> 
+
+          <div class="section-divider"></div>
+          
+          <div class="instruction-item">
+            <text class="bullet">•</text>
+            <text class="instruction-text">点击换页</text>
+          </div>
+          <div class="instruction-item">
+            <text class="bullet">•</text>
+            <text class="instruction-text">左滑上一页</text>
+          </div>
+          <div class="instruction-item">
+            <text class="bullet">•</text>
+            <text class="instruction-text">长按隐藏文本框</text>
+          </div>
+          <div class="instruction-item">
+            <text class="bullet">•</text>
+            <text class="instruction-text">再次点击恢复</text>
+          </div>
+          <div class="instruction-item">
+            <text class="bullet">•</text>
+            <text class="instruction-text">下滑菜单</text>
+          </div>
+          <div class="instruction-item">
+            <text class="bullet">•</text>
+            <text class="instruction-text">上滑隐藏菜单</text>
+          </div>
+          
+          <div class="section-divider"></div>
+          
+          <div class="update-info">
+            <text class="info-text">还没做完</text> 
+            <text class="info-text">敬请期待</text> 
+            <text class="info-text">有问题记得提出反馈</text> 
+            <text class="info-text">出现cg混乱，没有选项跳转，的解决方案：等我更新（完整安装包进入qq群获取）</text> 
+            <text class="info-text"></text> 
+            <text class="info-text">出现无文字的解决方案：进入设置页面调整字体粗细即可</text> 
+            <text class="info-text"></text> 
+            <text class="info-text">出现白屏卡住的解决方案：长按一次，等他隐藏了游戏界面后再点击一次就恢复了</text> 
+            <text class="info-text"></text> 
+            <text class="info-text">完整安装包有18mb，手环解压后30mb。表盘自定义版本去除了大部分图片，有需要请自行下载安装</text> 
+            <text class="info-text"></text> 
+            <text class="info-text">本快应用为非官方移植</text> 
+            <text class="info-text"></text> 
+            <text class="info-text">内存占用这块，因为这是多线的gal，占用内存大是正常的。还有就是有点卡顿，但是我尽力了，傻逼小米手环性能跟坨屎一样，显示个图片都卡半天。。。</text> 
+          </div>
+          
+          <div class="contact-section">
+            <text class="section-title">欢迎加Q群</text> 
+            <text class="highlight-text">224262549</text> 
+            <text class="info-text">软件开源不收费</text> 
+            <text class="info-text">希望有人能赞助作者,非常感谢</text> 
+            <text class="info-text">您的支持就是我最大的更新动力！</text>
+            <text class="info-text">接下来如鸽完了lemonade，估计会整一下天使纷扰</text>  
+          </div>
+          <div class="contact-section">
+            <image src="thanks.png"></image>
+          </div>
+          <div class="thanks-section">
+            <text class="section-title">特别致谢:</text> 
+            <text class="thanks-text">@EC @emm @Wiš'adel.@qwq-potato</text> 
+            <text class="thanks-text">@hanz @二次三个月 等群管理</text> 
+          </div>
+          
+          <div class="original-info">
+            <text class="info-text">移植自视觉小说</text> 
             <text class="app-name">lamelight lemonade jam</text> 
-            <text class="subtitle">小米手环移植版</text> 
-            <text class="author">软件作者：@hezdaaa~</text> 
-            
-            <div class="section-divider"></div>
-            
-            <text class="section-title">★使用说明★</text> 
-            <div class="instruction-item">
-                <text class="bullet">•</text>
-                <text class="instruction-text">点击换页</text>
-            </div>
-            <div class="instruction-item">
-                <text class="bullet">•</text>
-                <text class="instruction-text">左滑上一页</text>
-            </div>
-            <div class="instruction-item">
-                <text class="bullet">•</text>
-                <text class="instruction-text">长按隐藏文本框</text>
-            </div>
-            <div class="instruction-item">
-                <text class="bullet">•</text>
-                <text class="instruction-text">再次点击恢复</text>
-            </div>
-            <div class="instruction-item">
-                <text class="bullet">•</text>
-                <text class="instruction-text">下滑菜单</text>
-            </div>
-            <div class="instruction-item">
-                <text class="bullet">•</text>
-                <text class="instruction-text">上滑隐藏菜单</text>
-            </div>
-            
-            <div class="section-divider"></div>
-            
-            <text class="fun-text">点击主页背景图片有惊喜</text> 
-            
-            <div class="update-info">
-                <text class="info-text">已断更</text> 
-                <text class="info-text">可能会继续移植</text> 
-                <text class="info-text">有问题记得提出反馈</text> 
-            </div>
-            
-            <div class="contact-section">
-                <text class="section-title">欢迎加Q群</text> 
-                <text class="highlight-text">224262549</text> 
-                <text class="info-text">软件开源不收费</text> 
-            </div>
-            
-            <div class="thanks-section">
-                <text class="section-title">特别致谢:</text> 
-                <text class="thanks-text">@EC @emm @Wiš'adel.</text> 
-                <text class="thanks-text">@qwq-potato</text> 
-            </div>
-            
-            <div class="original-info">
-                <text class="info-text">移植自视觉小说</text> 
-                <text class="app-name">lamelight lemonade jam</text> 
-                <text class="fun-text">Ciallo～(∠ ·ω< )⌒★</text> 
-                <!-- <text class="original-label">原作</text> 
-                <image class="title-image" src='title_bg0.png'></image>  -->
-            </div>
-            
+            <text class="fun-text">Ciallo～(∠ ·ω< )⌒★</text> 
+          </div>
+          <div class="update-info"  if="{{isFirstVisit}}"  >
+            <text class="info-text">祝您在游玩过程中不会遇到神秘bug，玩的开心</text> 
+          </div>
         </div>
-        <text class="title"> </text> 
-        </scroll>
-        <img class="back-btn"src="/common/back.png" onclick="back"></img> 
+        <!-- 初次访问时显示的底部按钮 -->
+        <text class="acknowledge-btn" if="{{isFirstVisit}}"  onclick="acknowledge">我已知晓</text>
+      <text class="title"></text> 
+      </scroll>
+      
+      <!-- 左上角返回按钮：仅非初次访问时显示 -->
+      <img class="back-btn" src="/common/back.png" onclick="back" if="{{!isFirstVisit}}"></img> 
     </div> 
-</template> 
-
-<script> 
-import router from '@system.router' 
-
-export default { 
-    data:{ 
-        build:false, 
+  </template> 
+  
+  <script> 
+  import router from '@system.router'
+  import storage from '@system.storage'
+  
+  export default { 
+    data: { 
+      build: false,
+      isFirstVisit: true    // 默认为初次访问，待读取存储后更新
     }, 
-    back(){ 
-        router.back({ 
-            uri:'pages/index', 
-        }) 
-    }, 
-}; 
-</script> 
-
-<style> 
-.page { 
+    
+    onInit() {
+      // 读取是否已访问过 about 页面
+      storage.get({
+        key: 'about_visited',
+        success: (data) => {
+          if (data === 'true') {
+            this.isFirstVisit = false;  
+          } else {
+            this.isFirstVisit = true; 
+          }
+        },
+        fail: () => {
+          // 读取失败（键不存在），视为初次访问
+          this.isFirstVisit = true;
+        }
+      });
+    },
+    
+    back() { 
+      router.back({ 
+        uri: 'pages/index'
+      }) 
+    },
+    
+    acknowledge() {
+      // 标记已访问
+      storage.set({
+        key: 'about_visited',
+        value: 'true',
+        success: () => {
+          this.back();   // 返回主页
+        },
+        fail: () => {
+          this.back();   // 即使存储失败也返回
+        }
+      });
+    }
+  }; 
+  </script> 
+  
+  <style> 
+  .page { 
     background-color: #bbbbbb; 
     flex-direction: column; 
     justify-content: flex-start; 
     align-items: center; 
-} 
-.bcg{
+    position: relative;
+  } 
+  .bcg {
     position: absolute;
     width: 336px;
     height: 480px;
     top: 0;
     left: 0;
     z-index: -1;
-}
-.bt{
+  }
+  .bt {
     position: absolute;
     bottom: 0;
-}
-.hd{
+  }
+  .hd {
     position: absolute;
     top: 0;
-}
-.scroll{
-  height: 400px;
-  text-align: left;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  z-index: 0;
-  flex: 1;
-  width: 90%;
-}
-.header {
+  }
+  .scroll {
+    height: 400px;
+    text-align: left;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 0;
+    flex: 1;
+    width: 90%;
+  }
+  .header {
     flex-direction: row;
     justify-content: center;
     align-items: center;
     width: 100%;
     margin: 20px;
-}
-
-.title { 
+  }
+  .title { 
     font-size: 36px;
     color: #ebebeb;
     font-weight: bold;
-} 
-
-.back-btn { 
-    position:absolute;
-    left:15px;
+  } 
+  .back-btn { 
+    position: absolute;
+    left: 15px;
     top: 15px;
-} 
-
-.content {
+    z-index: 10;
+  } 
+  .content {
     flex-direction: column;
     align-items: center;
     width: 100%;
@@ -154,126 +208,109 @@ export default {
     border-radius: 12px;
     padding: 16px;
     border: 1px solid #e0e0e0;
-}
-
-.app-name {
+  }
+  .app-name {
     font-size: 24px;
     color: #333333;
     font-weight: bold;
     text-align: center;
     margin-bottom: 6px;
-}
-
-.subtitle {
+  }
+  .subtitle {
     font-size: 22px;
     color: #666666;
     text-align: center;
     margin-bottom: 8px;
-}
-
-.author {
+  }
+  .author {
     font-size: 22px;
     color: #888888;
     text-align: center;
     margin-bottom: 12px;
-}
-
-.section-divider {
+  }
+  .section-divider {
     width: 90%;
     height: 1px;
     background-color: #e0e0e0;
     margin: 12px 0;
-}
-
-.section-title {
+  }
+  .section-title {
     font-size: 24px;
     color: #333333;
     font-weight: bold;
     text-align: center;
     margin-bottom: 10px;
-}
-
-.instruction-item {
+  }
+  .instruction-item {
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
     width: 90%;
     margin-bottom: 6px;
-}
-
-.bullet {
+  }
+  .bullet {
     font-size: 20px;
     color: #4a4a4a;
     margin-right: 8px;
-}
-
-.instruction-text {
+  }
+  .instruction-text {
     font-size: 22px;
     color: #555555;
-}
-
-.fun-text {
+  }
+  .fun-text {
     font-size: 22px;
     color: #666666;
     font-style: italic;
     text-align: center;
     margin: 8px 0;
-}
-
-.update-info {
+  }
+  .update-info {
     flex-direction: column;
     align-items: center;
     margin: 10px 0;
-}
-
-.info-text {
+  }
+  .info-text {
     font-size: 22px;
     color: #666666;
     text-align: center;
     margin-bottom: 4px;
-}
-
-.contact-section {
+  }
+  .contact-section {
     flex-direction: column;
     align-items: center;
     margin: 12px 0;
-}
-
-.highlight-text {
+  }
+  .highlight-text {
     font-size: 24px;
     color: #1a73e8;
     font-weight: bold;
     text-align: center;
     margin: 6px 0;
-}
-
-.thanks-section {
+  }
+  .thanks-section {
     flex-direction: column;
     align-items: center;
     margin: 12px 0;
-}
-
-.thanks-text {
+  }
+  .thanks-text {
     font-size: 22px;
     color: #666666;
     text-align: center;
     margin-bottom: 4px;
-}
-
-.original-info {
+  }
+  .original-info {
     flex-direction: column;
     align-items: center;
     margin: 12px 0;
-}
+  }
 
-.original-label {
-    font-size: 26px;
-    color: #1a1a1a;
-    font-weight: bold;
-    margin: 8px 0;
-}
-
-.title-image {
-    margin-top: 12px;
-}
-</style> 
+  .acknowledge-btn {
+    background-color: #1a73e8;
+    color: white;
+    top:10px;
+    font-size: 28px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-align: center;
+  }
+  </style>
