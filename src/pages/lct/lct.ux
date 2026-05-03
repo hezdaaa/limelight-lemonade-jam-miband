@@ -164,10 +164,7 @@ export default {
             { line: 13498, label: 'CHAPTER6-2' },
             { line: 13737, label: 'CHAPTER6-3' },
             { line: 13948, label: 'CHAPTER6-4' },
-            { line: 14099, label: 'CHAPTER6-5' },
-            { line: 14446, label: 'CHAPTER6-6' },
-            { line: 14447, label: 'CHAPTER99-2' },
-            { line: 14539, label: 'CHAPTER99-3' }
+            { line: 14099, label: 'CHAPTER6-5' }
         ],
         megumiChapters: [
             { line: 14848, label: 'CHAPTER7-1' },

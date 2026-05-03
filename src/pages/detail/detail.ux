@@ -49,7 +49,7 @@
     <div class="background-mask" style="background-color: {{maskColor}};" if="{{isAnimating}}"></div>
     
     <!-- 闪光弹白色遮罩层（最高优先级） -->
-    <div class="flashbang-mask" if="{{showFlashbang}}" style="opacity: {{flashbangOpacity}};"></div>
+    <div class="flashbang-mask" if="{{showFlashbang}}" onclick="nextPage" style="opacity: {{flashbangOpacity}};"></div>
       
     <!-- 控制按钮（结局时隐藏） -->
     <div class="skip-btn2" if="{{isAutoing && !contrlcenterShow && !isAnimating && !isEnding}}" onclick="stopAutoplay">
@@ -454,7 +454,6 @@ export default {
     showFlashbang: false,            // 是否显示闪光弹白色遮罩
     flashbangOpacity: 1.0,           // 遮罩当前透明度
     flashbangTimer: null,            // 闪光弹动画定时器
-    originalBrightness: null,        // 闪光弹前的原始屏幕亮度（0-255）
     isFlashActive: false,            // 闪光弹是否正在进行中（用于禁止操作）
     waitForFlashbang: false,
   },
@@ -692,8 +691,8 @@ export default {
     };
   },
   
-  // 清理闪光弹效果，restoreBrightness 是否恢复原始亮度
-  cleanupFlashbang(restoreBrightness = true) {
+  // 清理闪光弹效果
+  cleanupFlashbang() {
     if (this.flashbangTimer) {
       clearInterval(this.flashbangTimer);
       this.flashbangTimer = null;
@@ -701,17 +700,9 @@ export default {
     if (this.showFlashbang) {
       this.showFlashbang = false;
     }
-    if (restoreBrightness && this.originalBrightness !== null) {
-      try {
-        brightness.setValue({ value: this.originalBrightness });
-      } catch (e) {
-        console.warn('恢复屏幕亮度失败:', e);
-      }
-      this.originalBrightness = null;
-    }
     this.isFlashActive = false;
 
-    // 新增：闪光弹结束后，如果等待标志为 true，则显示文字
+    // 闪光弹结束后，如果等待标志为 true，则显示文字
     if (this.waitForFlashbang) {
       this.startTypewriterAfterFlashbang();
     }
@@ -725,39 +716,16 @@ export default {
     this.currentTextIndex = 0;
     this.startTypewriter();
   },
-  // 触发闪光弹效果
+  // 触发闪光弹效果（纯透明度渐变）
   triggerFlashbang() {
     // 防止重复触发
     if (this.isFlashActive) {
-      this.cleanupFlashbang(false);
+      this.cleanupFlashbang();
     }
     // 结局或动画中不触发
     if (this.isEnding || this.isAnimating) return;
 
     this.isFlashActive = true;
-
-    // 尝试获取当前屏幕亮度，失败时使用默认值 128
-    try {
-      brightness.getValue({
-        success: (data) => {
-          this.originalBrightness = data.value;   // data.value 范围 0-255
-        },
-        fail: (err) => {
-          console.warn('获取亮度失败，使用默认值:', err);
-          this.originalBrightness = 128;
-        }
-      });
-    } catch (e) {
-      console.warn('brightness.getValue 异常:', e);
-      this.originalBrightness = 128;
-    }
-
-    // 尝试将屏幕亮度设为最大 (255)
-    try {
-      brightness.setValue({ value: 255 });
-    } catch (e) {
-      console.warn('设置屏幕亮度失败:', e);
-    }
 
     // 显示白色遮罩，起始不透明度 1
     this.showFlashbang = true;
@@ -773,7 +741,7 @@ export default {
       if (opacity <= 0) {
         clearInterval(this.flashbangTimer);
         this.flashbangTimer = null;
-        this.cleanupFlashbang(true);
+        this.cleanupFlashbang();
       } else {
         this.flashbangOpacity = opacity;
       }
@@ -1195,8 +1163,8 @@ finishAnimation() {
     if (this.typewriterTimer) clearInterval(this.typewriterTimer);
     if (this.animationTimer) clearTimeout(this.animationTimer);
     if (this.progressSaveTimer) clearTimeout(this.progressSaveTimer);
-    // 页面隐藏时清理闪光弹效果，恢复亮度
-    this.cleanupFlashbang(true);
+    // 页面隐藏时清理闪光弹效果
+    this.cleanupFlashbang();
     if (this.readProgress && this.readProgress > 0) {
       try { storage.set({ key: 'readProgress', value: this.readProgress.toString() }); } catch(e) {}
     }
@@ -1214,8 +1182,8 @@ finishAnimation() {
     if (this.backTimer) clearTimeout(this.backTimer);
     if (this.animationTimer) clearTimeout(this.animationTimer);
     if (this.progressSaveTimer) clearTimeout(this.progressSaveTimer);
-    // 彻底清理闪光弹，恢复亮度
-    this.cleanupFlashbang(true);
+    // 彻底清理闪光弹
+    this.cleanupFlashbang();
     if (Object.keys(this.pendingSaves).length > 0) this.savePendingBlocks();
     this.readBlocks = {};
     this.currentBlockIndex = 0;
@@ -1738,7 +1706,7 @@ finishAnimation() {
   z-index: 4;
 }
 
-/* 闪光弹白色遮罩层（最高优先级） */
+/* 闪光弹白色遮罩层 */
 .flashbang-mask {
   position: absolute;
   top: 0;
@@ -1747,7 +1715,6 @@ finishAnimation() {
   height: 100%;
   background-color: #ffffff;
   z-index: 1000;
-  pointer-events: none;   /* 让遮罩不干扰点击，点击事件穿透 */
 }
 
 /* 对话框 */

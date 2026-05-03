@@ -113,12 +113,12 @@ import prompt from '@system.prompt'
 
 export default { 
     data: { 
-        textSpeed: 25, 
-        fontSize: 30,
-        autoPlayDelay: 2000,  // 新增：自动播放速度
+        textSpeed: 15, 
+        fontSize: 22,
+        autoPlayDelay: 1600,  // 新增：自动播放速度
         screenAlwaysOn: true,  // 新增：屏幕常亮
         boldText: false,       // 新增：粗体
-        skipOnlyRead: false,   // 新增：仅跳过已读文本
+        skipOnlyRead: true,   // 新增：仅跳过已读文本
         unreadColor: '#ffffff',
         readColor: '#d495d4',
         previewText: "点击这里预览文本播放效果", 
@@ -439,12 +439,12 @@ export default {
     // 重置为默认值
     resetToDefaults() {
         // 重置所有设置为默认值
-        this.textSpeed = 25;
-        this.fontSize = 30;
-        this.autoPlayDelay = 2000;
+        this.textSpeed = 15;
+        this.fontSize = 22;
+        this.autoPlayDelay = 1600;
         this.screenAlwaysOn = true;
         this.boldText = false;
-        this.skipOnlyRead = false;
+        this.skipOnlyRead = true;
         this.unreadColor = '#ffffff';
         this.readColor = '#e6a0ff';  // 修改为新的默认值（淡紫）
         

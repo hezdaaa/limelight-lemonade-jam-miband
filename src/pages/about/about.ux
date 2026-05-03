@@ -53,7 +53,9 @@
             <text class="info-text"></text> 
             <text class="info-text">出现白屏nodata卡住的解决方案：长按一次，等他隐藏了游戏界面后再点击一次就恢复了，换成默认表盘会流畅很多</text> 
             <text class="info-text"></text> 
-            <text class="info-text">完整安装包有15mb，手环解压后20mb。表盘自定义版本去除了cg等（不得上传超过5mb的表盘），有需要请自行下载安装</text> 
+            <text class="info-text">如果是动不了的就快速插拔充电器以重启设备</text> 
+            <text class="info-text"></text> 
+            <text class="info-text">完整安装包有15mb，手环解压后20mb。表盘自定义版本是共通线预览版本（为了让我的号活着），有需要请自行下载安装完整版，在github开源链接可以下载</text> 
             <text class="info-text"></text> 
             <text class="info-text">占用内存大是正常的。还有就是有点卡顿，我尽力了</text> 
             <text class="info-text"></text> 
@@ -83,7 +85,7 @@
             <text class="fun-text">Ciallo～(∠ ·ω< )⌒★</text> 
           </div>
           <div class="update-info"  if="{{isFirstVisit}}"  >
-            <text class="info-text">祝您在游玩过程中不会遇到神秘bug，玩的开心</text> 
+            <text class="info-text">请先进入设置页面调整字体粗细等设置</text> 
           </div>
         </div>
         <!-- 初次访问时显示的底部按钮 -->
@@ -131,17 +133,21 @@
         uri: 'pages/index'
       }) 
     },
-    
+    setting() { 
+      router.replace({ 
+        uri: 'pages/settings'
+      }) 
+    },
     acknowledge() {
       // 标记已访问
       storage.set({
         key: 'about_visited2',
         value: 'true',
         success: () => {
-          this.back();   // 返回主页
+          this.setting();   // 返回主页
         },
         fail: () => {
-          this.back();   // 即使存储失败也返回
+          this.setting();   // 即使存储失败也返回
         }
       });
     }
