@@ -30,14 +30,14 @@
              onerror="onImageError('nextCharacter', nextCharacterImg)"></image>
     </div>
 
-    <!-- 对话框 -->
-    <image class="board" src="board.png" onclick="nextPage" if="{{pageShow === true && !hideText}}"></image>
+    <!-- 对话框（结局时隐藏） -->
+    <image class="board" src="board.png" onclick="nextPage" if="{{pageShow === true && !hideText && !isEnding}}"></image>
 
-    <!-- 角色名 -->
-    <text class="character" style=" color: {{viewed ? readColor : unreadColor}}; font-weight: {{boldText ? 'bold' : 'normal'}};" if="{{pageShow === true && !hideText}}">{{displayCharacter}}</text>
+    <!-- 角色名（结局时隐藏） -->
+    <text class="character" style=" color: {{viewed ? readColor : unreadColor}}; font-weight: {{boldText ? 'bold' : 'normal'}};" if="{{pageShow === true && !hideText && !isEnding}}">{{displayCharacter}}</text>
 
-    <!-- 文本内容 -->
-    <scroll id="Scroll" class="scroll2" onclick="nextPage" scroll-y="{{true}}" bounces="{{true}}">
+    <!-- 文本内容（结局时隐藏） -->
+    <scroll id="Scroll" class="scroll2" onclick="nextPage" scroll-y="{{true}}" bounces="{{true}}" if="{{!isEnding}}">
       <text class="contect" 
         style="color: {{viewed ? readColor : unreadColor}}; font-size: {{currentTextFontSize}}px; font-weight: {{boldText ? 'bold' : 'normal'}};" 
         if="{{pageShow === true && !hideText}}">
@@ -45,33 +45,34 @@
       </text>
     </scroll>
     
-    <!-- 黑色遮罩层 -->
+    <!-- 黑色遮罩层（用于背景切换动画） -->
     <div class="background-mask" style="background-color: {{maskColor}};" if="{{isAnimating}}"></div>
+    
+    <!-- 闪光弹白色遮罩层（最高优先级） -->
+    <div class="flashbang-mask" if="{{showFlashbang}}" style="opacity: {{flashbangOpacity}};"></div>
       
-    <!-- 控制按钮 -->
-    <div class="skip-btn2" if="{{isAutoing && !contrlcenterShow && !isAnimating}}" onclick="stopAutoplay">
+    <!-- 控制按钮（结局时隐藏） -->
+    <div class="skip-btn2" if="{{isAutoing && !contrlcenterShow && !isAnimating && !isEnding}}" onclick="stopAutoplay">
       <text>停止自动播放</text>
     </div>
-    <div class="skip-btn3" if="{{isGoing && !contrlcenterShow && !isAnimating}}" onclick="stopQuickGo">
+    <div class="skip-btn3" if="{{isGoing && !contrlcenterShow && !isAnimating && !isEnding}}" onclick="stopQuickGo">
       <text>停止快进</text>
     </div>
-    <div class="skip-btn4" if="{{isBacking && !contrlcenterShow && !isAnimating}}" onclick="stopQuickBack">
+    <div class="skip-btn4" if="{{isBacking && !contrlcenterShow && !isAnimating && !isEnding}}" onclick="stopQuickBack">
       <text>停止快退</text>
     </div>
     
-    <!-- 选择选项 -->
-    <div class="choose" if="{{choose && pageShow === true && !isAnimating}}">
+    <!-- 选择选项（结局时隐藏） -->
+    <div class="choose" if="{{choose && pageShow === true && !isAnimating && !isEnding}}">
       <text class="choosetext" onclick="choose1c" if="{{choose1Visible}}" style="color: {{choose1Color}};">{{choose1}}</text>
       <text class="choosetext" onclick="choose2c" if="{{choose2Visible}}" style="color: {{choose2Color}};">{{choose2}}</text>
       <text class="choosetext" onclick="choose3c" if="{{choose3Visible}}" style="color: {{choose3Color}};">{{choose3}}</text>
       <text class="choosetext" onclick="choose4c" if="{{choose4Visible}}" style="color: {{choose4Color}};">{{choose4}}</text>
     </div>
     
-    <!-- 控制中心 -->
-    <div class="page1" if="{{contrlcenterShow && !isAnimating}}" @swipe="controlCenterSwipe">
-      <scroll id="mainScroll" class="scroll" scroll-y="{{true}}" bounces="{{false}}" 
-      onscroll="mainScrollOnScroll" ontouchstart="onMainScrollTouchStart" 
-      ontouchmove="onMainScrollTouchMove" ontouchend="onMainScrollTouchEnd">
+    <!-- 控制中心（结局时隐藏） -->
+    <div class="page1" if="{{contrlcenterShow && !isAnimating && !isEnding}}" @swipe="controlCenterSwipe">
+      <scroll id="mainScroll" class="scroll" scroll-y="{{true}}" bounces="{{true}}">
         <text class="load2">{{nowTime}} | {{readProgress}}</text>
         <text class="load" onclick="hidecontrlcenter">返回</text>
         <text class="load" onclick="saveconShow">保存</text>
@@ -89,7 +90,7 @@
     </div>
 
     <!-- 读档页面 -->
-    <div class="page1" if="{{loadShow && !isAnimating}}" @swipe="loadSaveSwipe">
+    <div class="page1" if="{{loadShow && !isAnimating && !isEnding}}" @swipe="loadSaveSwipe">
       <text class="load3" onclick="loadconShow">点击跳转至对应页面</text>
       <scroll id="loadScroll" class="scroll" scroll-y="{{true}}" bounces="{{true}}">
         <div class="save-item" for="{{(index, item) in saveSlots}}" onclick="loadSlot(index + 1)">
@@ -100,7 +101,7 @@
     </div>
 
     <!-- 存档页面 -->
-    <div class="page1" if="{{saveShow && !isAnimating}}" @swipe="loadSaveSwipe">
+    <div class="page1" if="{{saveShow && !isAnimating && !isEnding}}" @swipe="loadSaveSwipe">
       <text class="load3" onclick="saveconShow">长按删除存档位</text>
       <scroll id="saveScroll" class="scroll" scroll-y="{{true}}" bounces="{{true}}">
         <div class="save-item" for="{{(index, item) in saveSlots}}">
@@ -111,6 +112,11 @@
         </div>
         <text class="load2"></text>
       </scroll>
+    </div>
+
+    <!-- 结局画面覆盖层 -->
+    <div class="end-overlay" if="{{isEnding && endAnimationDone}}" onclick="endClickReturn">
+      <text class="end-text">{{endText}}</text>
     </div>
   </div>
 </template>
@@ -136,7 +142,6 @@ export default {
     pageShow:true,
     viewed:false,
     readProgress: 1, 
-    animatingTextFontSize:null,
     // 存档数据
     saveSlots: [
       { id: 1, text: "空", progress: 1 },
@@ -218,12 +223,6 @@ export default {
     animationStep: 0,
     animatingProgressId: null,
     
-    // 动画期间保存的文本数据
-    oldCharacter: "",
-    oldContect: "",
-    newCharacter: "",
-    newContect: "",
-    
     // 已读页面分块存储相关
     readBlocks: {},
     currentBlockIndex: 0,
@@ -236,27 +235,164 @@ export default {
     pendingSaves: {},
     saveThreshold: 10,
     
-    // 后台保存队列
-    saveQueue: [],
-    isSaving: false,
-    
     // 分支跳转配置
     branchConfig: {
       noNextPages: {
+        3671:3717,
+        6198:6420,
+        7824:8059,
+        11361:11477,
+        11667:11905,
+        11824:11905,
+        12255:12569,
+        12372:12569,
+        12460:12559,
+        14232:14395,
+        14269:14395,
+        14308:14395,
+        14357:14395,
       },
       noBackPages: {
+        3672:3613,
+        3717:3717,
+        6199:5954,
+        6420:6420,
+        7825:7705,
+        8059:8059,
+        8066:8064,
+        11362:11282,
+        11477:11477,
+        11668:11566,
+        11825:11693,
+        11905:11905,
+        12256:12080,
+        12373:12080,
+        12461:12080,
+        12559:12559,
+        12569:12569,
+        14233:14152,
+        14270:14152,
+        14309:14152,
+        14358:14152,
+        14395:14395,
+        14848:14432,
+        46012:14432,
+        55201:14432,
+        25170:14432,
+        40613:14432,
+        35296:14432,
+        13634:13611,
+        14848:14848,
+        24546:24546,
+        34397:34397,
+        39924:39924,
+        45171:45171,
+        54247:54247,
+        67285:67285
       },
       hiddenPages: {
+        8064: (choices) => {
+          if (choices[7705] === 2) return 8065;
+          if (choices[7705] === 1) return 8066;
+        },
+        13611: (choices) => {
+          if (choices[3613] === 2
+           && choices[5954] === 2
+           && choices[7705] === 1
+           && choices[11282] === 1
+           && choices[11566] === 2
+           && choices[12080] === 2) return 13612;
+          else return 13634;
+        },
+        14152: (choices) => {
+          if (choices[3613] === 1
+           && choices[5954] === 1
+           && choices[7705] === 2
+           && choices[11282] === 1
+           && choices[11566] === 2
+           && choices[11693] === 2
+           && choices[12080] === 1) return 14153;
+          if (choices[3613] === 1
+           && choices[5954] === 1
+           && choices[7705] === 1
+           && choices[11282] === 1
+           && choices[11566] === 2
+           && choices[11693] === 2
+           && choices[12080] === 3) return 14233;
+          if (choices[3613] === 1
+           && choices[5954] === 1
+           && choices[11282] === 2
+           && choices[11566] === 1
+           && choices[12080] === 2) return 14270;
+          if (choices[3613] === 2
+           && choices[5954] === 2
+           && choices[7705] === 1
+           && choices[11282] === 1
+           && choices[11566] === 2
+           && choices[12080] === 2) return 14309;
+          else return 14358;
+        },
+        14432: (choices) => {
+          if (choices[3613] === 1
+           && choices[5954] === 1
+           && choices[7705] === 2
+           && choices[11282] === 1
+           && choices[11566] === 2
+           && choices[11693] === 2
+           && choices[12080] === 1) return 14848;
+          if (choices[3613] === 1
+           && choices[5954] === 1
+           && choices[7705] === 1
+           && choices[11282] === 1
+           && choices[11566] === 2
+           && choices[11693] === 2
+           && choices[12080] === 3) return 46012;
+          if (choices[3613] === 1
+           && choices[5954] === 1
+           && choices[11282] === 2
+           && choices[11566] === 1
+           && choices[12080] === 2) return 55201;
+          if (choices[3613] === 2
+           && choices[5954] === 2
+           && choices[7705] === 1
+           && choices[11282] === 1
+           && choices[11566] === 2
+           && choices[12080] === 2) return 25170;
+          if (choices[3613] === 1
+           && choices[5954] === 1
+           && choices[7705] === 2
+           && choices[11282] === 1
+           && choices[11566] === 2
+           && choices[11693] === 1
+           && choices[12080] === 3) return 40613;
+          if (choices[5954] === 2
+           && choices[7705] === 1
+           && choices[11282] === 2
+           && choices[11566] === 2
+           && choices[11693] === 2
+           && choices[12080] === 2) return 35296;
+          else return 14433;
+        },
       },
       choices: {
       },
       end: {
+        14847: "The end",
+        24545: "Ena end",
+        34396: "Ririko end",
+        39923: "Nayuka end",
+        45170: "Miku end",
+        54246: "Anju end",
+        67284: "Tsukimi end",
+        25169: "回到主页",
+        35095: "回到主页",
+        40612: "回到主页",
+        46011: "回到主页",
+        55200: "回到主页",
+        68229: "回到主页",
       }
     },
     
-    // 选择记录缓存
-    choicesCache: {},
-
     // 控制中心滚动/触摸检测状态
     mainScrollStartY: 0,
     mainTouchMovedY: 0, 
@@ -265,7 +401,7 @@ export default {
     
     // 加载状态
     isLoadingScript: false,
-    isGameEngineLoaded: false, // 新增：脚本加载标志
+    isGameEngineLoaded: false,
     
     // 当前页面ID
     currentPageId: 1,
@@ -288,30 +424,39 @@ export default {
     // 进度保存相关
     lastSavedProgress: 1,
     progressSaveDelay: 500,
-    progressSaveTimer: null, // 防抖定时器
+    progressSaveTimer: null,
     
     // 图片内存管理系统
     imageCache: {},
     maxImageCacheSize: 8,
     currentImageKeys: [],
-    imagePreloadQueue: [],
     isPreloadingImages: false,
     imageMemoryUsage: 0,
     maxImageMemory: 15 * 1024 * 1024,
     lastImageCleanup: 0,
-    imageCleanupInterval: 5000, // 增加到5秒
+    imageCleanupInterval: 5000,
     imageLoadSuccess: 0,
     imageLoadFail: 0,
-    lastMemoryReport: 0,
     lowMemoryMode: false,
     forceImageCleanupThreshold: 0.8,
     
-    // 字体解析缓存（使用普通对象）
+    // 字体解析缓存
     fontParseCache: {},
-    fontParseCacheOrder: [],    // 记录键的顺序
-    // 特殊跳转缓存
-    specialJumpCache: {},
-    specialJumpCacheOrder: [],
+    fontParseCacheOrder: [],
+    
+    // 结局相关状态
+    isEnding: false,
+    endText: "",
+    endAnimationDone: false,
+    
+    // 闪光弹相关数据
+    flashbangPages: [19246,19250,19253,19223,19228,19228,192333,19235],          // 触发闪光弹的页面ID列表（可扩展）
+    showFlashbang: false,            // 是否显示闪光弹白色遮罩
+    flashbangOpacity: 1.0,           // 遮罩当前透明度
+    flashbangTimer: null,            // 闪光弹动画定时器
+    originalBrightness: null,        // 闪光弹前的原始屏幕亮度（0-255）
+    isFlashActive: false,            // 闪光弹是否正在进行中（用于禁止操作）
+    waitForFlashbang: false,
   },
   
   // 解析文本字体大小（带缓存）
@@ -331,7 +476,6 @@ export default {
       processedText = match[2];
     }
     const result = { fontSize, text: processedText };
-    // 限制缓存大小
     if (this.fontParseCacheOrder.length > 200) {
       const oldestKey = this.fontParseCacheOrder.shift();
       delete this.fontParseCache[oldestKey];
@@ -341,7 +485,7 @@ export default {
     return result;
   },
   
-  // ---------- 缩放类辅助方法 ----------
+  // 缩放类辅助方法
   getCharacterScaleClass(z) {
     if (z === 1) return 'character-scale-07';
     if (z === 2) return 'character-scale-12';
@@ -352,7 +496,6 @@ export default {
     return 'bg-scale-1';
   },
   
-  // 图片src变更检测，避免重复加载
   updateImageIfNeeded(target, newSrc, type) {
     if (this[target] !== newSrc) {
       this[target] = newSrc;
@@ -404,11 +547,6 @@ export default {
       priority: this.getImagePriority(imageType, isPreload)
     };
     this.imageMemoryUsage += estimatedSize;
-    const now = Date.now();
-    if (now - this.lastMemoryReport > 10000) {
-      this.lastMemoryReport = now;
-      console.log(`图片缓存: ${Object.keys(this.imageCache).length}张, 内存: ${Math.round(this.imageMemoryUsage/1024)}KB/${Math.round(this.maxImageMemory/1024)}KB`);
-    }
     return true;
   },
   getImagePriority(imageType, isPreload) {
@@ -448,10 +586,8 @@ export default {
       .filter(([key, img]) => !this.currentImageKeys.includes(key) && (now - img.lastUsed > 5000));
     if (candidates.length === 0) return;
     candidates.sort((a, b) => {
-      const [keyA, imgA] = a;
-      const [keyB, imgB] = b;
-      if (imgA.priority !== imgB.priority) return imgA.priority - imgB.priority;
-      return imgA.lastUsed - imgB.lastUsed;
+      if (a[1].priority !== b[1].priority) return a[1].priority - b[1].priority;
+      return a[1].lastUsed - b[1].lastUsed;
     });
     const toRemove = candidates.slice(0, Math.min(count, candidates.length));
     let freedMemory = 0;
@@ -460,7 +596,6 @@ export default {
       delete this.imageCache[key];
     });
     this.imageMemoryUsage = Math.max(0, this.imageMemoryUsage - freedMemory);
-    if (toRemove.length > 0) console.log(`清理了 ${toRemove.length} 张图片，释放 ${Math.round(freedMemory/1024)}KB 内存`);
     if (this.imageMemoryUsage > this.maxImageMemory * this.forceImageCleanupThreshold) this.forceCleanupExcessImages();
   },
   forceCleanupExcessImages() {
@@ -478,7 +613,6 @@ export default {
     }
     this.imageMemoryUsage = Math.max(0, this.imageMemoryUsage - freedMemory);
     if (freedMemory > 0) {
-      console.warn(`强制清理 ${Math.round(freedMemory/1024)}KB 内存，当前 ${Math.round(this.imageMemoryUsage/1024)}KB`);
       this.lowMemoryMode = true;
     }
   },
@@ -517,55 +651,32 @@ export default {
     this.markImageAsUsed(url, type);
   },
   onImageError(type, url) {
-    console.log(`图片加载失败: ${url}, 类型: ${type}`);
-    this.imageLoadFail++;
-    
-    // 在缓存中标记该图片加载失败，降低优先级
     const key = this.getImageKey(url);
     if (key && this.imageCache[key]) {
       this.imageCache[key].failed = true;
-      this.imageCache[key].priority = -1; // 最低优先级，便于后续清理
+      this.imageCache[key].priority = -1;
     }
-    
-    // 根据图片类型直接隐藏对应的图片（清空 src）
     switch (type) {
       case 'background':
-        if (this.currentBackground === url) {
-          this.currentBackground = '';
-        }
+        if (this.currentBackground === url) this.currentBackground = '';
         break;
       case 'nextBackground':
-        if (this.nextBackground === url) {
-          this.nextBackground = '';
-          this.showNextBackground = false; // 立即隐藏下一张背景容器
-        }
+        if (this.nextBackground === url) { this.nextBackground = ''; this.showNextBackground = false; }
         break;
       case 'cg':
-        if (this.cgimg === url) {
-          this.cgimg = '';
-        }
+        if (this.cgimg === url) this.cgimg = '';
         break;
       case 'nextCg':
-        if (this.nextCg === url) {
-          this.nextCg = '';
-          this.showNextCg = false;
-        }
+        if (this.nextCg === url) { this.nextCg = ''; this.showNextCg = false; }
         break;
       case 'character':
-        if (this.characterimg === url) {
-          this.characterimg = '';
-        }
+        if (this.characterimg === url) this.characterimg = '';
         break;
       case 'nextCharacter':
-        if (this.nextCharacterImg === url) {
-          this.nextCharacterImg = '';
-          this.showNextCharacter = false;
-        }
+        if (this.nextCharacterImg === url) { this.nextCharacterImg = ''; this.showNextCharacter = false; }
         break;
-      default:
-        break;
+      default: break;
     }
-    // 注意：不再执行任何重试延迟或 URL 修改
   },
   getImageCacheStatus() {
     const total = Object.keys(this.imageCache).length;
@@ -579,6 +690,94 @@ export default {
       success: this.imageLoadSuccess,
       fail: this.imageLoadFail
     };
+  },
+  
+  // 清理闪光弹效果，restoreBrightness 是否恢复原始亮度
+  cleanupFlashbang(restoreBrightness = true) {
+    if (this.flashbangTimer) {
+      clearInterval(this.flashbangTimer);
+      this.flashbangTimer = null;
+    }
+    if (this.showFlashbang) {
+      this.showFlashbang = false;
+    }
+    if (restoreBrightness && this.originalBrightness !== null) {
+      try {
+        brightness.setValue({ value: this.originalBrightness });
+      } catch (e) {
+        console.warn('恢复屏幕亮度失败:', e);
+      }
+      this.originalBrightness = null;
+    }
+    this.isFlashActive = false;
+
+    // 新增：闪光弹结束后，如果等待标志为 true，则显示文字
+    if (this.waitForFlashbang) {
+      this.startTypewriterAfterFlashbang();
+    }
+  },
+  startTypewriterAfterFlashbang() {
+    if (!this.waitForFlashbang) return;
+    this.waitForFlashbang = false;
+
+    this.displayCharacter = this.character;
+    this.displayText = "";
+    this.currentTextIndex = 0;
+    this.startTypewriter();
+  },
+  // 触发闪光弹效果
+  triggerFlashbang() {
+    // 防止重复触发
+    if (this.isFlashActive) {
+      this.cleanupFlashbang(false);
+    }
+    // 结局或动画中不触发
+    if (this.isEnding || this.isAnimating) return;
+
+    this.isFlashActive = true;
+
+    // 尝试获取当前屏幕亮度，失败时使用默认值 128
+    try {
+      brightness.getValue({
+        success: (data) => {
+          this.originalBrightness = data.value;   // data.value 范围 0-255
+        },
+        fail: (err) => {
+          console.warn('获取亮度失败，使用默认值:', err);
+          this.originalBrightness = 128;
+        }
+      });
+    } catch (e) {
+      console.warn('brightness.getValue 异常:', e);
+      this.originalBrightness = 128;
+    }
+
+    // 尝试将屏幕亮度设为最大 (255)
+    try {
+      brightness.setValue({ value: 255 });
+    } catch (e) {
+      console.warn('设置屏幕亮度失败:', e);
+    }
+
+    // 显示白色遮罩，起始不透明度 1
+    this.showFlashbang = true;
+    this.flashbangOpacity = 1;
+
+    let opacity = 1;
+    const step = 0.05;
+    const intervalMs = 20;
+
+    if (this.flashbangTimer) clearInterval(this.flashbangTimer);
+    this.flashbangTimer = setInterval(() => {
+      opacity -= step;
+      if (opacity <= 0) {
+        clearInterval(this.flashbangTimer);
+        this.flashbangTimer = null;
+        this.cleanupFlashbang(true);
+      } else {
+        this.flashbangOpacity = opacity;
+      }
+    }, intervalMs);
   },
   
   // ---------- 已读块管理 ----------
@@ -676,6 +875,13 @@ export default {
   },
   
   // ---------- 辅助功能 ----------
+  setKeepScreenOn(enabled) {
+    try {
+      brightness.setKeepScreenOn({ keepScreenOn: enabled });
+    } catch (e) {
+      console.warn('屏幕常亮设置失败（不影响游戏）:', e);
+    }
+  },
   updateTime() {
     const date = new Date();
     let hours = date.getHours();
@@ -684,87 +890,38 @@ export default {
     minutes = minutes < 10 ? '0' + minutes : minutes;
     this.nowTime = `${hours}:${minutes}`;
   },
-  // 带缓存的特殊跳转检查
+  // 特殊跳转检查（next方向使用noNextPages，back方向使用noBackPages）
   checkSpecialJump(progressId, direction) {
-    const cacheKey = `${progressId}_${direction}`;
-    if (this.specialJumpCache[cacheKey] !== undefined) {
-      return this.specialJumpCache[cacheKey];
-    }
-    let result = null;
     if (direction === 'next' && this.branchConfig.noNextPages[progressId]) {
-      result = this.branchConfig.noNextPages[progressId];
+      return this.branchConfig.noNextPages[progressId];
     }
     if (direction === 'back') {
       if (this.branchConfig.noBackPages[progressId]) {
-        result = this.branchConfig.noBackPages[progressId];
-      } else {
-        try {
-          const hidden = this.branchConfig.hiddenPages || {};
-          for (const key of Object.keys(hidden)) {
-            const fn = hidden[key];
-            if (typeof fn === 'function') {
-              const mapped = fn(this.branchConfig.choices || {});
-              if (Number(mapped) === Number(progressId)) {
-                result = Number(key);
-                break;
-              }
-            }
-          }
-        } catch (err) {}
+        return this.branchConfig.noBackPages[progressId];
       }
     }
-    // 限制缓存大小
-    if (this.specialJumpCacheOrder.length > 500) {
-      const oldestKey = this.specialJumpCacheOrder.shift();
-      delete this.specialJumpCache[oldestKey];
-    }
-    this.specialJumpCache[cacheKey] = result;
-    this.specialJumpCacheOrder.push(cacheKey);
-    return result;
+    return null;
   },
+  // 检查是否属于 hiddenPages，若是则执行映射函数，否则返回原ID
   checkHiddenPage(progressId) {
     const idStr = progressId.toString();
     if (this.branchConfig.hiddenPages && this.branchConfig.hiddenPages[idStr]) {
-      const hiddenPageFunc = this.branchConfig.hiddenPages[idStr];
+      const fn = this.branchConfig.hiddenPages[idStr];
       try {
-        const mapped = hiddenPageFunc(this.branchConfig.choices || {});
+        const mapped = fn(this.branchConfig.choices || {});
         const num = Number(mapped);
         return Number.isFinite(num) && !Number.isNaN(num) ? num : progressId;
       } catch (err) { return progressId; }
     }
     return progressId;
   },
+  checkEndPage(progressId) {
+    return this.branchConfig.end[progressId] || null;
+  },
   recordChoice(choicePageId, choiceValue) {
     this.branchConfig.choices[choicePageId] = choiceValue;
-    this.choicesCache[choicePageId] = choiceValue;
-    this.backgroundSave('branchChoices', JSON.stringify(this.branchConfig.choices));
+    storage.set({ key: 'branchChoices', value: JSON.stringify(this.branchConfig.choices) });
   },
-  checkEndPage(progressId) { return this.branchConfig.end && this.branchConfig.end[progressId] === true; },
-  backgroundSave(key, value) {
-    if (key.startsWith('readBlock_')) {
-      const existingIndex = this.saveQueue.findIndex(item => item.key === key);
-      if (existingIndex !== -1) this.saveQueue[existingIndex].value = value;
-      else this.saveQueue.push({ key, value });
-    } else this.saveQueue.push({ key, value });
-    if (!this.isSaving) this.processSaveQueue();
-  },
-  processSaveQueue() {
-    if (this.saveQueue.length === 0) { this.isSaving = false; return; }
-    this.isSaving = true;
-    const task = this.saveQueue.shift();
-    try { storage.set({ key: task.key, value: task.value }); } catch(error) {}
-    // 使用微任务或延迟，避免阻塞
-    setTimeout(() => this.processSaveQueue(), 5);
-  },
-  setChooseColors(progressId) {
-    const choice = this.branchConfig.choices[progressId];
-    this.choose1Color = (choice === 1) ? this.readColor : this.unreadColor;
-    this.choose2Color = (choice === 2) ? this.readColor : this.unreadColor;
-    this.choose3Color = (choice === 3) ? this.readColor : this.unreadColor;
-    this.choose4Color = (choice === 4) ? this.readColor : this.unreadColor;
-  },
-  
-  // 防抖保存进度
   debouncedSaveProgress() {
     if (this.progressSaveTimer) clearTimeout(this.progressSaveTimer);
     this.progressSaveTimer = setTimeout(() => {
@@ -785,14 +942,12 @@ export default {
     if (newBackground) this.addToImageCache(newBackground, 'background');
     if (newCg) this.addToImageCache(newCg, 'cg');
     if (newCharacterImg) this.addToImageCache(newCharacterImg, 'character');
-    this.oldCharacter = this.character;
-    this.oldContect = this.contect;
-    this.newCharacter = newCharacter;
-    this.newContect = newContect;
+    this.character = newCharacter;
+    this.contect = newContect;
     this.animatingProgressId = progressId;
-    this.animatingTextFontSize = textFontSize;
+    this.currentTextFontSize = textFontSize;
     this.playAnimation();
-},
+  },
   playAnimation() {
     if (!this.isAnimating) return;
     if (this.animationTimer) clearTimeout(this.animationTimer);
@@ -806,13 +961,10 @@ export default {
         if (this.nextCharacterImg) this.showNextCharacter = true;
         this.characterimg = "";
         this.cgimg = "";
-        this.character = this.newCharacter;
-        this.contect = this.newContect;
-        this.displayCharacter = this.newCharacter;
+        this.displayCharacter = this.character;
         this.displayText = "";
-        this.currentTextFontSize = this.animatingTextFontSize;
         this.cleanupImagesByPriority(1);
-    }
+      }
       this.animationStep++;
     } else if (this.animationStep <= 20) {
       const opacity = ((20 - this.animationStep) * (1/10)).toFixed(2);
@@ -841,29 +993,34 @@ export default {
     }
     this.animationTimer = setTimeout(() => this.playAnimation(), 30);
   },
-  finishAnimation() {
-    this.isAnimating = false;
-    this.hideText = false;
-    this.maskColor = "rgba(0, 0, 0, 0.0)";
-    this.showNextBackground = false;
-    this.showNextCg = false;
-    this.showNextCharacter = false;
-    this.oldCharacter = "";
-    this.oldContect = "";
-    this.newCharacter = "";
-    this.newContect = "";
-    this.nextCg = "";
-    this.nextCharacterImg = "";
-    this.nextCharacterScaleClass = '';
-    this.nextBackgroundScaleClass = '';
-    this.animatingTextFontSize = null;
+finishAnimation() {
+  this.isAnimating = false;
+  this.hideText = false;
+  this.maskColor = "rgba(0, 0, 0, 0.0)";
+  this.showNextBackground = false;
+  this.showNextCg = false;
+  this.showNextCharacter = false;
+  this.nextCg = "";
+  this.nextCharacterImg = "";
+  this.nextCharacterScaleClass = '';
+  this.nextBackgroundScaleClass = '';
 
+  if (this.isEnding) {
+    this.endAnimationDone = true;
+  } else {
     if (this.animatingProgressId) {
-        this.isPageRead(this.animatingProgressId).then(viewed => this.viewed = viewed).catch(() => this.viewed = false);
-        this.animatingProgressId = null;
+      this.isPageRead(this.animatingProgressId).then(viewed => this.viewed = viewed).catch(() => this.viewed = false);
+      this.animatingProgressId = null;
     }
-    this.startTypewriter();
-  },
+    // 等待闪光弹时不立即启动文字
+    if (this.waitForFlashbang) {
+      this.displayCharacter = "";
+      this.displayText = "";
+    } else {
+      this.startTypewriter();
+    }
+  }
+},
   
   // ---------- 快进快退 ----------
   quickgo() { this.isGoing ? this.stopQuickGo() : this.startQuickGo(); this.contrlcenterShow = false; },
@@ -885,6 +1042,19 @@ export default {
       this.skipTyping();
     }
     if (!this.skipOnlyRead) await this.markPageAsRead(this.readProgress);
+    const endText = this.checkEndPage(this.readProgress);
+    if (endText) {
+      this.triggerEndSequence(endText);
+      return;
+    }
+    const hiddenJump = this.checkHiddenPage(this.readProgress);
+    if (hiddenJump !== this.readProgress) {
+      this.readProgress = hiddenJump;
+      await this.saveOnBlockTransition(this.readProgress);
+      await this.loadQuickPage(this.readProgress);
+      this.scheduleNextQuickPage();
+      return;
+    }
     const specialJump = this.checkSpecialJump(this.readProgress, 'next');
     if (specialJump != null) {
       this.readProgress = specialJump;
@@ -939,21 +1109,30 @@ export default {
         this.isLoadingScript = false;
         return;
       }
-      const actualProgressId = this.checkHiddenPage(progressId);
-      if (this.checkEndPage(actualProgressId)) { this.indexRoute(); return; }
-      // 确保游戏引擎已加载
+      const endText = this.checkEndPage(progressId);
+      if (endText) {
+        this.triggerEndSequence(endText);
+        this.isLoadingScript = false;
+        return;
+      }
       if (!this.gameEngine || !this.isGameEngineLoaded) {
         this.gameEngine = new GameEngine();
         const loadSuccess = await this.gameEngine.loadGameScript();
         this.isGameEngineLoaded = loadSuccess;
         if (!loadSuccess) { this.displayText = "脚本加载失败，请重新启动应用"; this.isLoadingScript = false; return; }
       }
-      const script = await this.gameEngine.getScript(actualProgressId);
+      const script = await this.gameEngine.getScript(progressId);
       if (script) {
         this.cachePageScript(progressId, script);
         this.applyQuickPageScript(script, progressId);
-      } else { this.contect = "加载失败，请检查脚本文件"; this.displayText = this.contect; }
-    } catch (error) { this.contect = "加载页面失败"; this.displayText = this.contect; }
+      } else {
+        this.contect = "加载失败，请检查脚本文件";
+        this.displayText = this.contect;
+      }
+    } catch (error) {
+      this.contect = "加载页面失败";
+      this.displayText = this.contect;
+    }
     finally { this.isLoadingScript = false; }
   },
   cachePageScript(progressId, script) {
@@ -967,11 +1146,9 @@ export default {
     if (index > -1) this.quickNavigationQueue.splice(index, 1);
     this.quickNavigationQueue.push(progressId);
   },
-  // 优化：检查图片变化避免重复加载
   applyQuickPageScript(script, progressId) {
     const characterScaleClass = this.getCharacterScaleClass(script.z);
     const backgroundScaleClass = this.getBackgroundScaleClass(script.z);
-    
     this.updateImageIfNeeded('currentBackground', script.background || "", 'background');
     this.currentBackgroundScaleClass = backgroundScaleClass;
     this.updateImageIfNeeded('cgimg', script.cg || "", 'cg');
@@ -981,21 +1158,7 @@ export default {
     const parsed = this.parseTextFontSize(script.text || "");
     this.contect = parsed.text;
     this.currentTextFontSize = parsed.fontSize;
-    this.choose = script.choose || false;
-    this.choose1 = script.choose1 || "";
-    this.choose2 = script.choose2 || "";
-    this.choose3 = script.choose3 || "";
-    this.choose4 = script.choose4 || "";
-    this.choose1To = script.choose1To || progressId;
-    this.choose2To = script.choose2To || progressId;
-    this.choose3To = script.choose3To || progressId;
-    this.choose4To = script.choose4To || progressId;
-    this.choose1Visible = Boolean((this.choose1 || "").toString().trim());
-    this.choose2Visible = Boolean((this.choose2 || "").toString().trim());
-    this.choose3Visible = Boolean((this.choose3 || "").toString().trim());
-    this.choose4Visible = Boolean((this.choose4 || "").toString().trim());
-    this.choose = Boolean(this.choose && (this.choose1Visible || this.choose2Visible || this.choose3Visible || this.choose4Visible));
-    if (this.choose) this.setChooseColors(progressId);
+    this.setChoiceData(script, progressId);
     this.isPageRead(progressId).then(viewed => this.viewed = viewed).catch(() => this.viewed = false);
     this.displayCharacter = this.character;
     this.displayText = this.contect;
@@ -1021,19 +1184,19 @@ export default {
     this.gameEngine = new GameEngine();
     this.updateTime();
     this.timeTimer = setInterval(() => this.updateTime(), 500);
-    // 降低清理频率
     setInterval(() => { if (this.imageMemoryUsage > this.maxImageMemory * 0.7) this.cleanupImagesByPriority(2); }, 5000);
     this.currentBackgroundScaleClass = 'bg-scale-1';
     this.currentCharacterScaleClass = 'character-scale-1';
   },
   onHide() {
-    console.log('页面隐藏，清理内存...');
     this.stopAutoplay();
     this.stopQuickGo();
     this.stopQuickBack();
     if (this.typewriterTimer) clearInterval(this.typewriterTimer);
     if (this.animationTimer) clearTimeout(this.animationTimer);
     if (this.progressSaveTimer) clearTimeout(this.progressSaveTimer);
+    // 页面隐藏时清理闪光弹效果，恢复亮度
+    this.cleanupFlashbang(true);
     if (this.readProgress && this.readProgress > 0) {
       try { storage.set({ key: 'readProgress', value: this.readProgress.toString() }); } catch(e) {}
     }
@@ -1042,8 +1205,6 @@ export default {
       try { storage.set({ key: 'branchChoices', value: JSON.stringify(this.branchConfig.choices || {}) }); } catch(e) {}
     }
     this.cleanupImagesByPriority(3);
-    const status = this.getImageCacheStatus();
-    console.log(`页面隐藏，图片缓存状态: ${status.total}张, ${status.memory}, 成功率: ${status.success}/${status.success+status.fail}`);
   },
   onDestroy() {
     if (this.typewriterTimer) clearInterval(this.typewriterTimer);
@@ -1053,6 +1214,8 @@ export default {
     if (this.backTimer) clearTimeout(this.backTimer);
     if (this.animationTimer) clearTimeout(this.animationTimer);
     if (this.progressSaveTimer) clearTimeout(this.progressSaveTimer);
+    // 彻底清理闪光弹，恢复亮度
+    this.cleanupFlashbang(true);
     if (Object.keys(this.pendingSaves).length > 0) this.savePendingBlocks();
     this.readBlocks = {};
     this.currentBlockIndex = 0;
@@ -1061,16 +1224,11 @@ export default {
     this.quickNavigationQueue = [];
     this.imageCache = {};
     this.currentImageKeys = [];
-    this.imagePreloadQueue = [];
     this.imageMemoryUsage = 0;
     this.lowMemoryMode = false;
-    // 清理缓存对象
     this.fontParseCache = {};
     this.fontParseCacheOrder = [];
-    this.specialJumpCache = {};
-    this.specialJumpCacheOrder = [];
     if (this.gameEngine) this.gameEngine.clearAll();
-    console.log('页面销毁，所有内存已清理');
   },
   async onShow(){
     try {
@@ -1082,7 +1240,6 @@ export default {
       this.currentPageId = progress;
       this.lastSavedProgress = progress;
       await this.loadSaveSlots();
-      // 确保游戏引擎只加载一次
       if (!this.gameEngine) this.gameEngine = new GameEngine();
       if (!this.isGameEngineLoaded) {
         const loadSuccess = await this.gameEngine.loadGameScript();
@@ -1092,8 +1249,10 @@ export default {
       if (this.isGameEngineLoaded) {
         this.loadPage(this.readProgress);
       }
-      await this.refreshTextColorState();
+      this.viewed = await this.isPageRead(this.readProgress);
     } catch (error) { console.error('onShow执行出错:', error); }
+    
+      this.setKeepScreenOn(this.screenAlwaysOn);
   },
   
   // ---------- 设置与存档 ----------
@@ -1188,8 +1347,8 @@ export default {
       promises.push(promise);
     }
     await Promise.all(promises);
-this.saveSlots = [...this.saveSlots];
-return true;
+    this.saveSlots = [...this.saveSlots];
+    return true;
   },
   quickSave() { this.saveToSlot(1); this.contrlcenterShow = false; },
   loadSlot(slotIndex){ 
@@ -1220,16 +1379,17 @@ return true;
     if (this.isLoadingScript) return;
     this.isLoadingScript = true;
     try {
-      const actualProgressId = this.checkHiddenPage(progressId);
-      if (this.checkEndPage(actualProgressId)) { this.indexRoute(); return; }
-      // 确保游戏引擎已加载
+      const endText = this.checkEndPage(progressId);
+      if (endText) {
+        // 结局页正常加载内容，由后续点击触发end序列
+      }
       if (!this.gameEngine || !this.isGameEngineLoaded) {
         this.gameEngine = new GameEngine();
         const loadSuccess = await this.gameEngine.loadGameScript();
         this.isGameEngineLoaded = loadSuccess;
         if (!loadSuccess) { this.displayText = "脚本加载失败，请重新启动应用"; this.isLoadingScript = false; return; }
       }
-      const script = await this.gameEngine.getScript(actualProgressId);
+      const script = await this.gameEngine.getScript(progressId);
       if (!script) { this.contect = "加载失败，请检查脚本文件"; this.displayText = this.contect; this.displayCharacter = "系统"; this.isLoadingScript = false; return; }
       
       const characterScaleClass = this.getCharacterScaleClass(script.z);
@@ -1256,8 +1416,14 @@ return true;
           this.startBackgroundAnimation(newBackground, newCg, newCharacterImg, newCharacter, actualContect, progressId, characterScaleClass, backgroundScaleClass, textFontSize);
           this.setChoiceData(script, progressId);
           this.currentPageId = progressId;
+
+          // 如果是闪光弹页面，暂时不显示文字，等待闪光弹结束后再显示
+          if (this.flashbangPages.includes(progressId)) {
+              this.waitForFlashbang = true;
+              this.displayCharacter = "";
+              this.displayText = "";
+          }
       } else {
-          // 无动画分支，使用图片变更检测优化
           this.updateImageIfNeeded('currentBackground', newBackground, 'background');
           this.currentBackgroundScaleClass = backgroundScaleClass;
           this.updateImageIfNeeded('cgimg', newCg, 'cg');
@@ -1270,8 +1436,26 @@ return true;
           this.displayCharacter = this.character;
           this.isPageRead(progressId).then(viewed => this.viewed = viewed).catch(() => this.viewed = false);
           this.currentPageId = progressId;
-          this.startTypewriter();
+
+          // 闪光弹页面：不立即显示文字，等待闪光弹结束
+          if (this.flashbangPages.includes(progressId)) {
+              this.waitForFlashbang = true;
+              this.displayCharacter = "";
+              this.displayText = "";
+          } else {
+              this.startTypewriter();
+          }
       }
+      
+      // 闪光弹触发：如果当前页面在闪光弹列表中，根据不同情况延时触发
+      if (!this.isEnding && this.flashbangPages.includes(progressId)) {
+          // 有背景切换动画时等待动画完成（约650ms），否则快速触发（80ms）
+          const delay = shouldAnimate ? 650 : 80;
+          setTimeout(() => {
+              this.triggerFlashbang();
+          }, delay);
+      }
+      
     } catch (error) {
       console.error('加载页面失败:', error);
       this.contect = "加载页面失败，请稍后重试";
@@ -1305,12 +1489,10 @@ return true;
     this.displayText = "";
     this.currentTextIndex = 0;
     this.isTyping = true;
-
     this.typewriterTimer = setInterval(() => {
       if (this.currentTextIndex < this.contect.length) {
         this.displayText += this.contect.charAt(this.currentTextIndex);
         this.currentTextIndex++;
-        // 优化：减少滚动频率，仅在最后或每20个字符滚动一次
         if (this.currentTextIndex % 20 === 0 || this.currentTextIndex === this.contect.length) {
           const now = Date.now();
           if (now - this.lastScrollTime > this.scrollThrottleDelay) {
@@ -1345,18 +1527,79 @@ return true;
       this.lastScrollTime = now;
     }
   },
+  
+  // ---------- 结局序列 ----------
+  triggerEndSequence(text) {
+    this.stopAutoplay();
+    this.stopQuickGo();
+    this.stopQuickBack();
+    if (this.typewriterTimer) clearInterval(this.typewriterTimer);
+    this.isTyping = false;
+    
+    this.isEnding = true;
+    this.endText = text;
+    this.endAnimationDone = false;
+    
+    this.choose = false;
+    this.hideText = true;
+    this.pageShow = true;
+    
+    this.startBackgroundAnimation(
+      '/common/bcgi/画面_白.jpg',
+      '',
+      '',
+      '',
+      '',
+      null,
+      '',
+      'bg-scale-1',
+      this.fontSize
+    );
+  },
+  
+  endClickReturn() {
+    this.indexRoute();
+  },
+  
+  playPage() {
+    if (this.isEnding && this.endAnimationDone) return;
+    // 闪光弹期间禁止切换页面显示隐藏，避免冲突
+    if (this.isFlashActive) return;
+    if (this.pageShow === false) this.pageShow = !this.pageShow;
+  },
+  
+  // 翻页逻辑：新增 hiddenPages 跳转，同时闪光弹期间不允许翻页
   async nextPage(){ 
-    if (this.isTyping || this.isAnimating  || this.isGoing || this.isBacking || this.isLoadingScript) return;
-    if(this.choose === true){ this.stopAutoplay(); return; }
+    if (this.isTyping || this.isAnimating || this.isGoing || this.isBacking || this.isLoadingScript) return;
+    if (this.isFlashActive) return;   // 闪光弹期间禁止翻页
+    if (this.choose === true){ this.stopAutoplay(); return; }
+    const endText = this.checkEndPage(this.readProgress);
+    if (endText) {
+      this.triggerEndSequence(endText);
+      return;
+    }
+    if (this.branchConfig.hiddenPages[this.readProgress]) {
+      const targetId = this.branchConfig.hiddenPages[this.readProgress](this.branchConfig.choices);
+      if (targetId !== this.readProgress) {
+        await this.markPageAsRead(this.readProgress);
+        this.readProgress = targetId;
+        await this.saveOnBlockTransition(this.readProgress);
+        this.loadPage(this.readProgress);
+        return;
+      }
+    }
     await this.markPageAsRead(this.readProgress);
     const specialJump = this.checkSpecialJump(this.readProgress, 'next');
     if (specialJump != null) { this.readProgress = specialJump; await this.saveOnBlockTransition(this.readProgress); this.loadPage(this.readProgress); return; }
-    if (this.choose === false) { this.readProgress++; await this.saveOnBlockTransition(this.readProgress); this.loadPage(this.readProgress); } 
+    if (!this.choose) { this.readProgress++; await this.saveOnBlockTransition(this.readProgress); this.loadPage(this.readProgress); }
   },
   
   // ---------- 页面显示隐藏 ----------
-  displayPage(){ if(!this.isAnimating && !this.isAutoing && !this.isGoing && !this.isBacking && !this.contrlcenterShow) this.pageShow = !this.pageShow; },
-  playPage(){ if(this.pageShow === false) this.pageShow = !this.pageShow; },
+  displayPage(){ 
+    if(this.isAnimating || this.isAutoing || this.isGoing || this.isBacking || this.contrlcenterShow || this.isEnding) return;
+    if (this.isFlashActive) return;   // 闪光弹期间不响应长按
+    this.pageShow = !this.pageShow; 
+  },
   
   // ---------- 路由 ----------
   settingsRoute(){ this.contrlcenterShow = false; this.pageloading(); this.stopAutoplay(); this.stopQuickGo(); this.stopQuickBack(); router.push({ uri:'pages/settings' }); },
@@ -1374,34 +1617,11 @@ return true;
   },
   toTop(){ this.$element('Scroll').scrollTo({ top: 0, left: 0, behavior: 'smooth' }); },
   
-  // ---------- 控制中心滚动 ----------
-  mainScrollOnScroll(e) {
-    try {
-      const detail = (e && e.detail) ? e.detail : e || {};
-      const scrollTop = detail.scrollTop || (detail.contentOffset && detail.contentOffset.y) || 0;
-      const scrollHeight = detail.scrollHeight || (detail.contentSize && detail.contentSize.height) || 0;
-      const clientHeight = detail.clientHeight || (detail.size && detail.size.height) || 0;
-      this.mainScrollAtBottom = (scrollTop + clientHeight >= scrollHeight - 5);
-    } catch (err) { this.mainScrollAtBottom = false; }
-  },
-  onMainScrollTouchStart(e) {
-    const t = (e && e.touches && e.touches[0]) ? e.touches[0] : (e && e.detail && e.detail.touches && e.detail.touches[0]) || {};
-    this.mainScrollStartY = t.clientY || t.pageY || 0;
-    this.mainTouchMovedY = 0;
-  },
-  onMainScrollTouchMove(e) {
-    const t = (e && e.touches && e.touches[0]) ? e.touches[0] : (e && e.detail && e.detail.touches && e.detail.touches[0]) || {};
-    const currentY = t.clientY || t.pageY || 0;
-    this.mainTouchMovedY = currentY - this.mainScrollStartY;
-    if (this.mainScrollAtBottom && this.mainTouchMovedY < this.hideOnUpThreshold) {
-      this.contrlcenterShow = false;
-      this.mainTouchMovedY = 0;
-      this.mainScrollStartY = 0;
-    }
-  },
-  onMainScrollTouchEnd(e) { this.mainTouchMovedY = 0; this.mainScrollStartY = 0; },
+  // ---------- 页面滚动操作----------
   hidecontrlcenter(){ this.contrlcenterShow = false; },
   pageSwipe(e){
+    if (this.isEnding) return;
+    if (this.isFlashActive) return;   // 闪光弹期间禁止滑动手势
     if( e.direction === 'right' && this.readProgress>1 && this.contrlcenterShow === false && this.pageShow === true && !this.isAnimating ) {
       const specialJump = this.checkSpecialJump(this.readProgress, 'back');
       if (specialJump != null) { if (specialJump !== this.readProgress) this.readProgress = specialJump; this.loadPage(this.readProgress); }
@@ -1416,11 +1636,16 @@ return true;
   
   async loadChoiceRecords() {
     return new Promise((resolve) => {
-      storage.get({ key: 'branchChoices', success: (data) => { try { this.branchConfig.choices = JSON.parse(data); this.choicesCache = {...this.branchConfig.choices}; } catch(e) { this.branchConfig.choices = {}; this.choicesCache = {}; } resolve(); }, fail: () => { this.branchConfig.choices = {}; this.choicesCache = {}; resolve(); } });
+      storage.get({ key: 'branchChoices', success: (data) => { try { this.branchConfig.choices = JSON.parse(data); } catch(e) { this.branchConfig.choices = {}; } resolve(); }, fail: () => { this.branchConfig.choices = {}; resolve(); } });
     });
   },
-  async refreshTextColorState() { this.viewed = await this.isPageRead(this.readProgress); },
-  async setbrightness(){ brightness.setKeepScreenOn({ keepScreenOn: this.screenAlwaysOn }); },
+  setChooseColors(progressId) {
+    const choice = this.branchConfig.choices[progressId];
+    this.choose1Color = (choice === 1) ? this.readColor : this.unreadColor;
+    this.choose2Color = (choice === 2) ? this.readColor : this.unreadColor;
+    this.choose3Color = (choice === 3) ? this.readColor : this.unreadColor;
+    this.choose4Color = (choice === 4) ? this.readColor : this.unreadColor;
+  },
   getReadProgress() { return new Promise((resolve) => storage.get({ key: 'readProgress', success: (data) => resolve(Number(data) || 1), fail: () => resolve(1) })); }
 };
 </script>
@@ -1455,9 +1680,8 @@ return true;
 
 /* 背景缩放类 */
 .bg-scale-1 { transform: scale(1) translate(0px, 0px); }
-
-/* 优化后 */
 .bg-scale-11 { transform: scale(1.1) translate(-20px, -20px); }
+
 /* CG图片样式 */
 .cgimg{
   position: absolute;
@@ -1499,10 +1723,11 @@ return true;
   z-index: 3;
 }
 
-/* 优化后（只触发合成） */
+/* 立绘缩放类 */
 .character-scale-07 { transform: scale(0.6) translate(50px, 45px); }
 .character-scale-12 { transform: scale(1.2) translate(-20px, 15px); }
 .character-scale-1  { transform: scale(1) translate(0px, 40px); }
+
 /* 黑色遮罩层 */
 .background-mask{
   position: absolute;
@@ -1511,6 +1736,18 @@ return true;
   top: 0;
   left: 0;
   z-index: 4;
+}
+
+/* 闪光弹白色遮罩层（最高优先级） */
+.flashbang-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  z-index: 1000;
+  pointer-events: none;   /* 让遮罩不干扰点击，点击事件穿透 */
 }
 
 /* 对话框 */
@@ -1640,4 +1877,25 @@ return true;
 
 .save-item { flex-direction: column; justify-content: center; align-items: center; }
 .save-add { justify-content: center; align-items: center; }
+
+/* 结局画面覆盖层 */
+.end-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.end-text {
+  font-size: 36px;
+  font-weight: bold;
+  color: #000000;
+  text-align: center;
+  padding: 20px;
+}
 </style>

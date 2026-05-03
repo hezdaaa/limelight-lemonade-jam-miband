@@ -15,9 +15,6 @@
             <div class="content" onclick="showlh">
                 <text class="mid">立绘鉴赏</text>
             </div>
-            <div class="content" onclick="showscene">
-                <text class="mid">场景鉴赏</text>
-            </div>
         </div>
         
         <!-- CG鉴赏页面 -->

@@ -25,73 +25,73 @@
             <img class="hd" src="/common/hd.png"></img> 
             <!-- 惠凪后日谈 -->
             <div class="page2" if="{{character==1}}">
-                <image class="cig" src="/common/cimg/hz302.png"></image>
+                <image class="cig" src="/common/cimg/hz02_1.png"></image>
                 <div class="header">
                     <text class="title">后日谈</text> 
                 </div>
                 <text class="mid1">惠凪</text>
                 <div class="startBtn">
-                    <text class="startText" onclick="loadStart()">开始</text>
+                    <text class="startText" onclick="loadStart(24546)">开始</text>
                 </div>
             </div>
             
             <!-- 杏珠后日谈 -->
             <div class="page2" if="{{character==2}}">
-                <image class="cig" src="/common/cimg/xz204.png"></image>
+                <image class="cig" src="/common/cimg/xz05_1.png"></image>
                 <div class="header">
                     <text class="title">后日谈</text> 
                 </div>
                 <text class="mid1">杏珠</text>
                 <div class="startBtn">
-                    <text class="startText" onclick="loadStart()">开始</text>
+                    <text class="startText" onclick="loadStart(54247)">开始</text>
                 </div>
             </div>
             
             <!-- 月望后日谈 -->
             <div class="page2" if="{{character==3}}">
-                <image class="cig" src="/common/cimg/yw102.png"></image>
+                <image class="cig" src="/common/cimg/yw02_1.png"></image>
                 <div class="header">
                     <text class="title">后日谈</text> 
                 </div>
                 <text class="mid1">月望</text>
                 <div class="startBtn">
-                    <text class="startText" onclick="loadStart()">开始</text>
+                    <text class="startText" onclick="loadStart(67285)">开始</text>
                 </div>
             </div>
             
             <!-- 莉莉子后日谈 -->
             <div class="page2" if="{{character==4}}">
-                <image class="cig" src="/common/cimg/llz102.png"></image>
+                <image class="cig" src="/common/cimg/llz01_1.png"></image>
                 <div class="header">
                     <text class="title">后日谈</text> 
                 </div>
                 <text class="mid1">莉莉子</text>
                 <div class="startBtn">
-                    <text class="startText" onclick="loadStart()">开始</text>
+                    <text class="startText" onclick="loadStart(34397)">开始</text>
                 </div>
             </div>
             
             <!-- 美玖后日谈 -->
             <div class="page2" if="{{character==5}}">
-                <image class="cig" src="/common/cimg/mj101.png"></image>
+                <image class="cig" src="/common/cimg/mj01_1.png"></image>
                 <div class="header">
                     <text class="title">后日谈</text> 
                 </div>
                 <text class="mid1">美玖</text>
                 <div class="startBtn">
-                    <text class="startText" onclick="loadStart()">开始</text>
+                    <text class="startText" onclick="loadStart(45171)">开始</text>
                 </div>
             </div>
             
             <!-- 那优花后日谈 -->
             <div class="page2" if="{{character==6}}">
-                <image class="cig" src="/common/cimg/nyh101.png"></image>
+                <image class="cig" src="/common/cimg/nyh01_1.png"></image>
                 <div class="header">
                     <text class="title">后日谈</text> 
                 </div>
                 <text class="mid1">那优花</text>
                 <div class="startBtn">
-                    <text class="startText" onclick="loadStart()">开始</text>
+                    <text class="startText" onclick="loadStart(39924)">开始</text>
                 </div>
             </div>
             
@@ -201,6 +201,7 @@ export default {
     width: 100%;
     height: 100%;
     position: relative;
+    overflow: hidden;
 }
 
 /* 后日谈单个角色页面 */
@@ -228,13 +229,9 @@ export default {
 /* 角色图片 */
 .cig {
     position: absolute;
-    width: 336px;
-    height: 480px;
-    top: 0;
-    left: 0;
+    top: 30px;
+    left: 20px;
     z-index: -1;
-    object-fit: cover;
-    opacity: 0.9;
 }
 
 /* 底部装饰 */

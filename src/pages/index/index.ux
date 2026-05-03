@@ -24,7 +24,7 @@
     <image class="reset" src="/common/reset.png" onclick="reset" if="{{uishow}}"></image>
     <image class="back" src="/common/go.png" onclick="die" if="{{uishow}}"></image>
     <div class="page1" if="{{loadShow}}">
-      <text class="load" onclick="loadProccess">返回</text>
+      <text class="load" onclick="unloadProccess">返回</text>
       <scroll id="mainScroll" class="scroll" scroll-y="{{true}}" bounces="{{true}}">
         <!-- 使用 for 循环渲染存档 -->
         <div class="save-item" for="{{(index, item) in saveSlots}}" onclick="loadSlot(index + 1)">
@@ -287,8 +287,11 @@ export default {
   loadProccess(){
       this.loadShow = true;
   },
-  loadpageProccess(){
-    if(this.loadShow===true){
+  unloadProccess(){
+      this.loadShow = false;
+  },
+  loadpageProccess(e){
+    if(this.loadShow === true && e.direction === 'right'){
       this.loadShow = false;
     }
   },
@@ -300,13 +303,13 @@ export default {
     this.firstLaunchChecked = true;
 
     storage.get({
-      key: 'hasLaunchedBefore',
+      key: 'hasLaunchedBefore2',
       success: (data) => {
         // 如果没有标记过，则为初次启动
         if (data !== 'true') {
           // 设置已启动标记
           storage.set({
-            key: 'hasLaunchedBefore',
+            key: 'hasLaunchedBefore2',
             value: 'true',
             success: () => {},
             fail: () => {}
@@ -320,7 +323,7 @@ export default {
       fail: () => {
         // 读取失败时也视为初次启动，进行标记并跳转
         storage.set({
-          key: 'hasLaunchedBefore',
+          key: 'hasLaunchedBefore2',
           value: 'true',
           success: () => {},
           fail: () => {}
